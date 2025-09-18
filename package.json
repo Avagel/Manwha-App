@@ -1,0 +1,19 @@
+{
+  "name": "manga-app",
+  "version": "1.0.0",
+  "description": "a manhwa reading app",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Avagel/Manwha-App.git"
+  },
+  "author": "Akanume Iruoghene",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Avagel/Manwha-App/issues"
+  },
+  "homepage": "https://github.com/Avagel/Manwha-App#readme"
+}

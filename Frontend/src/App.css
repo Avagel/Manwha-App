@@ -1,0 +1,202 @@
+@import url("https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap");
+
+#root {
+  width: 100%;
+  min-height: 100%;
+  color: #cbc9cf;
+}
+a {
+  color: #cbc9cf;
+}
+svg {
+  width: 15px;
+  height: 15px;
+}
+.page {
+  min-height: 100vh;
+  /* background-image: url("./assets/manhwa back.png"); */
+  background-position: center;
+  background-color: black;
+  background-size: cover;
+  background-attachment: fixed;
+  position: relative;
+  z-index: -1;
+  /* overflow: scroll; */
+}
+body {
+  position: relative;
+  margin: 0;
+  padding: 0;
+  font-family: "Poppins", sans-serif;
+}
+nav {
+  position: fixed;
+  width: 260px;
+  height: 50px;
+  z-index: 3;
+  background-color: #141212;
+  border-radius: 18px;
+  bottom: 23px;
+  display: flex;
+  align-items: center;
+  left: 50%;
+  transform: translateX(-50%);
+
+  a {
+    font-size: 10px;
+    width: 90px;
+    height: 50px;
+    text-decoration: none;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    border-radius: 18px;
+    svg {
+      width: 15px;
+      height: 15px;
+      margin-bottom: 6px;
+    }
+  }
+  a.active {
+    background-color: #32576e;
+  }
+}
+
+.library-page .container {
+  display: grid;
+  grid-template-columns: 50fr 50fr;
+  padding: 0 15px;
+  gap: 15px;
+  padding-top: 60px;
+}
+.manwha-card {
+  aspect-ratio: 0.67/1;
+  /* width: 173px; */
+  /* height: 260px; */
+  border-radius: 5px;
+  position: relative;
+  overflow: hidden;
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    background-color: rgb(24, 24, 24);
+  }
+  .overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(
+      to bottom,
+      rgba(0, 0, 0, 0) 60%,
+      rgba(0, 0, 0, 0.986)
+    );
+    z-index: 1;
+  }
+
+  .name {
+    font-size: 10px;
+    position: absolute;
+    bottom: 10px;
+    left: 10px;
+    width: 122px;
+    height: fit-content;
+    z-index: 3;
+    max-height: 19px;
+  }
+}
+
+.history-page .container {
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  padding-top: 60px;
+}
+.history-page {
+  background-color: red;
+  padding: 0 20px;
+  position: relative;
+}
+.history-card {
+  width: 100%;
+  height: 90px;
+  display: flex;
+  position: relative;
+  align-items: center;
+
+  img {
+    width: 60px;
+    height: 90px;
+    object-fit: cover;
+    background-color: gray;
+    margin-right: 20px;
+    border-radius: 5px;
+  }
+
+  p {
+    color: #cbc9cf;
+    margin: 0;
+    padding: 0;
+    font-size: 10px;
+    width: 170px;
+  }
+
+  svg {
+    position: absolute;
+    right: 0;
+  }
+}
+.header {
+  position: fixed;
+  z-index: 3;
+  top: 0;
+  left: 0;
+  box-sizing: border-box;
+  padding: 0 20px;
+  height: 55px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 16px;
+  width: 100%;
+  backdrop-filter: blur(50px);
+
+  .sort {
+    display: flex;
+    gap: 20px;
+  }
+}
+.discover-page .container {
+  display: grid;
+  grid-template-columns: 50fr 50fr;
+  gap: 15px;
+}
+
+.discover-page {
+  position: unset;
+  padding: 0 15px;
+  padding-top: 60px;
+}
+.discover-nav {
+  display: flex;
+  gap: 19px;
+  margin: 10px 0 20px;
+  button {
+    border-radius: 5px;
+    padding: 5px 10px;
+    font-size: 12px;
+    color: #cbc9cf;
+    border: 0.5px solid #cbc9cf;
+    background-color: transparent;
+  }
+
+  button.active {
+    background-color: #cbc9cf;
+    color: #141212;
+  }
+}
