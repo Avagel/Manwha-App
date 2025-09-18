@@ -3,6 +3,7 @@
 #root {
   width: 100%;
   min-height: 100%;
+  background: transparent;
   color: #cbc9cf;
 }
 a {
@@ -19,7 +20,7 @@ svg {
   background-color: black;
   background-size: cover;
   background-attachment: fixed;
-  position: relative;
+  /* position: relative; */
   z-index: -1;
   /* overflow: scroll; */
 }
@@ -118,8 +119,7 @@ nav {
   padding-top: 60px;
 }
 .history-page {
-  padding: 0 20px;
-  position: relative;
+  padding: 0 15px;
 }
 .history-card {
   width: 100%;
@@ -164,6 +164,14 @@ nav {
   font-size: 16px;
   width: 100%;
   backdrop-filter: blur(50px);
+  input{
+    width: 100%;
+    background-color: transparent;
+    border: 0;
+    color: #cbc9cf;
+    border-bottom: .5px solid #cbc9cf;
+    padding: 5px;
+  }
 
   .sort {
     display: flex;

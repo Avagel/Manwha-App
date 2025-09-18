@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { Header } from "../components/Header";
 import { ManwhaCard } from "../components/ManhwaCard";
 
@@ -204,14 +205,16 @@ export const LibraryPage = () => {
       img: "https://gg.asuracomic.net/storage/media/283985/conversions/01JQJ43VN033V2ZBVAN94P7H9X-thumb-small.webp",
     },
   ];
+  const [search, setSearch] = useState("");
 
   return (
     <div className="library-page page">
-      <Header/>
+      <Header setSearch={setSearch} />
       <div className="container">
-        {dummy.map((item) => {
-            const {title,img} = item
-          return <ManwhaCard img_url={img} name={title} />;
+        {dummy.map((item, index) => {
+          const { title, img } = item;
+          if (title.toLocaleLowerCase().indexOf(search) === -1) return;
+          return <ManwhaCard key={index} img_url={img} name={title} />;
         })}
       </div>
     </div>

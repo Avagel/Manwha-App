@@ -1,6 +1,7 @@
 import { Header } from "../components/Header";
 import { NavLink } from "react-router";
 import { ManwhaCard } from "../components/ManhwaCard";
+import { useState } from "react";
 
 export const DiscoverPage = () => {
   const dummy = [
@@ -205,17 +206,20 @@ export const DiscoverPage = () => {
       img: "https://gg.asuracomic.net/storage/media/283985/conversions/01JQJ43VN033V2ZBVAN94P7H9X-thumb-small.webp",
     },
   ];
+  const [search, setSearch] = useState("");
   return (
     <div className="discover-page page">
-      <Header />
+      <Header setSearch={setSearch} />
+
       <div className="discover-nav">
         <button className="active">Latest</button>
         <button>Popular</button>
       </div>
       <div className="container">
-        {dummy.map((item) => {
+        {dummy.map((item, index) => {
           const { title, img } = item;
-          return <ManwhaCard img_url={img} name={title} />;
+          if (title.toLocaleLowerCase().indexOf(search) === -1) return;
+          return <ManwhaCard key={index} img_url={img} name={title} />;
         })}
       </div>
     </div>

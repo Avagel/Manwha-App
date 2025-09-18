@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { Header } from "../components/Header";
 import { HistoryCard } from "../components/HistoryCard";
 
@@ -204,14 +205,16 @@ export const HistoryPage = () => {
       img: "https://gg.asuracomic.net/storage/media/283985/conversions/01JQJ43VN033V2ZBVAN94P7H9X-thumb-small.webp",
     },
   ];
+  const [search, setSearch] = useState("");
 
   return (
     <div className="history-page page">
-      <Header />
+      <Header setSearch={setSearch} />
       <div className="container">
-        {dummy.map((item) => {
+        {dummy.map((item, index) => {
           const { img, title } = item;
-          return <HistoryCard img_url={img} name={title} />;
+          if (title.toLocaleLowerCase().indexOf(search) === -1) return;
+          return <HistoryCard key={index} img_url={img} name={title} />;
         })}
       </div>
     </div>
