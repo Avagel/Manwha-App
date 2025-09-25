@@ -1,0 +1,4 @@
+const library = {
+    manwhaCard,
+    manwhaCard
+}
