@@ -1,19 +1,21 @@
 import {
+  faBackward,
   faFilter,
   faSearch,
   faWindowClose,
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useRef, useState } from "react";
+import { useNavigate } from "react-router";
 
-export const Header = ({ setSearch }) => {
+export const Header = ({ setSearch, val }) => {
   const [isSearchActive, setIsSearchActive] = useState(false);
   const inputRef = useRef(null);
+  const navigate = useNavigate();
 
   const handleSearchClick = () => {
     console.log("Search icon clicked");
-    
-    
+
     if (isSearchActive) setSearch("");
     setIsSearchActive(!isSearchActive);
   };
@@ -26,6 +28,10 @@ export const Header = ({ setSearch }) => {
       setSearch("");
     }
   });
+  const goBack = ()=>{
+    navigate(-1)
+
+  }
 
   return (
     <div className="header">
@@ -38,7 +44,9 @@ export const Header = ({ setSearch }) => {
           autoFocus
         />
       ) : (
-        <p className="name">Library</p>
+        <p className="name">
+          {val == "back" ? <FontAwesomeIcon icon={faBackward} onClick={goBack} /> : val}
+        </p>
       )}
 
       <div className="sort">

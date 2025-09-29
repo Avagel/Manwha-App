@@ -13,21 +13,100 @@ import { HistoryPage } from "./pages/HistoryPage";
 import { reducer } from "./Reducer";
 
 function App() {
-  const [count, setCount] = useState(0);
   const [currentPage, setCurrentPage] = useState(<LibraryPage />);
-  const [state, dispatch] = useReducer(reducer, currentPage);
-  const pageContext = createContext();
+  const [latest, setLatest] = useState([]);
+  const [popular, setPopular] = useState([]);
+  const [libraryData, setLibraryData] = useState(null);
+  const [historyData, setHistoryData] = useState([]);
+
+  const addToHistory = async (data) => {
+    const uuid = localStorage.getItem("manhwaUUID");
+    const options = {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        UUID: uuid,
+        data: { ...data },
+      }),
+    };
+
+    try {
+      const res = await fetch("http://localhost:3000/history/add", options);
+      const result = res.json();
+      console.log("Added", result);
+
+      const check = historyData.filter(
+        (manhw) => manhw.manhwaName == data.manhwaName
+      );
+      if (check.length > 0) {
+        setHistoryData((prev) => {
+          return prev.filter((manhw) => manhw.manhwaName !== data.manhwaName);
+        });
+      }
+
+      console.log("check ", check);
+
+      setHistoryData((prev) => {
+        return [...prev, data];
+      });
+    } catch (error) {
+      // setError(error);
+      console.error(error);
+    }
+  };
 
   return (
     <>
       <BrowserRouter>
         <Routes>
-          <Route path="/" element={<Layout />}>
-            <Route index element={<LibraryPage />} />
-            <Route path="history" element={<HistoryPage />} />
-            <Route path="overview/:manhwaName" element={<OverviewPage />} />
-            <Route path="discover" element={<DiscoverPage />} />
-            <Route path="series" element={<ReadingPage />} />
+          <Route
+            path="/"
+            element={
+              <Layout
+                libraryData={libraryData}
+                setLibraryData={setLibraryData}
+              />
+            }
+          >
+            <Route
+              index
+              element={
+                <LibraryPage
+                  libraryData={libraryData}
+                  setLibraryData={setLibraryData}
+                />
+              }
+            />
+            <Route
+              path="history"
+              element={
+                <HistoryPage
+                  historyData={historyData}
+                  setHistoryData={setHistoryData}
+                />
+              }
+            />
+            <Route
+              path="overview/:manhwaName"
+              element={<OverviewPage setHistoryData={setHistoryData} />}
+            />
+            <Route
+              path="discover"
+              element={
+                <DiscoverPage
+                  latest={latest}
+                  setLatest={setLatest}
+                  popular={popular}
+                  setPopular={setPopular}
+                />
+              }
+            />
+            <Route
+              path="series"
+              element={<ReadingPage addToHistory={addToHistory} />}
+            />
           </Route>
         </Routes>
       </BrowserRouter>

@@ -1,9 +1,18 @@
-export const ManwhaCard = ({name, img_url}) => {
+import { useNavigate } from "react-router";
+
+export const ManwhaCard = ({ data }) => {
+  console.log(data);
+  const { img, title } = data;
+  const navigate = useNavigate();
+  const handleClick = () => {
+    navigate("/overview/" + title, { state: { data } });
+  };
+
   return (
-    <div className="manwha-card" onClick={()=>{console.log("Card clicked")}}>
+    <div className="manwha-card" onClick={handleClick}>
       <div className="overlay"></div>
-      <img src={img_url} alt="" />
-      <p className="name">{name}</p>
+      <img src={img} alt="" />
+      <p className="name">{title}</p>
     </div>
   );
 };
