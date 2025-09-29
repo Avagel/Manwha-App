@@ -3,6 +3,7 @@ import { GenreCard } from "../components/GenreCard";
 import { ChapterCard } from "../components/ChapterCard";
 import { useLocation } from "react-router";
 import { useState, useEffect } from "react";
+import axios from "axios";
 
 export const OverviewPage = ({ setHistoryData }) => {
   const location = useLocation();
@@ -27,8 +28,10 @@ export const OverviewPage = ({ setHistoryData }) => {
   //fetch data
   const fetchOtherData = async () => {
     try {
-      const res = await fetch("http://localhost:3000/manhwa/details", options);
-      const result = await res.json();
+      const res = await axios.post("http://localhost:3000/manhwa/details", {
+        link: data.link,
+      });
+      const result = res.data;
 
       setManhwaData((prev) => {
         return {

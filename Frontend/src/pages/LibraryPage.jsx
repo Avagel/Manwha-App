@@ -4,8 +4,9 @@ import { ManwhaCard } from "../components/ManhwaCard";
 import { LoadingCard } from "../components/LoadingCard";
 import { v4 as uuidv4 } from "uuid";
 import none from "../assets/none.svg";
+import axios from "axios";
 
-export const LibraryPage = ({ libraryData, setLibraryData,setManhwaData }) => {
+export const LibraryPage = ({ libraryData, setLibraryData, setManhwaData }) => {
   const dummy = [5, 5, 5, 5, 5, 5];
   const [search, setSearch] = useState("");
   const [error, setError] = useState(null);
@@ -36,8 +37,11 @@ export const LibraryPage = ({ libraryData, setLibraryData,setManhwaData }) => {
       }),
     };
     try {
-      const res = await fetch("http://localhost:3000/user/add", options);
-      const result = await res.json();
+      const res = await axios.post("http://localhost:3000/user/add", {
+        UUID: uuid,
+      });
+      console.log(res.data)
+      const result = res.data;
       console.log("successful: ", result);
       localStorage.setItem("manhwaUUID", uuid);
     } catch (error) {
@@ -61,8 +65,10 @@ export const LibraryPage = ({ libraryData, setLibraryData,setManhwaData }) => {
     };
 
     try {
-      const res = await fetch("http://localhost:3000/library/fetch", options);
-      const result = await res.json();
+      const res = await axios.post("http://localhost:3000/library/fetch", {
+        UUID: uuid,
+      });
+      const result = res.data
       console.log("successful: ", result);
 
       setLibraryData(result.manhwas);
@@ -81,7 +87,13 @@ export const LibraryPage = ({ libraryData, setLibraryData,setManhwaData }) => {
             {libraryData.map((data, index) => {
               const { title, img } = data;
               if (title.toLocaleLowerCase().indexOf(search) === -1) return;
-              return <ManwhaCard key={index} data={data} setManhwaData={setManhwaData} />;
+              return (
+                <ManwhaCard
+                  key={index}
+                  data={data}
+                  setManhwaData={setManhwaData}
+                />
+              );
             })}
           </div>
         ) : (

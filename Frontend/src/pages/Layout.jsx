@@ -10,13 +10,14 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import { Header } from "../components/Header";
 import { useState } from "react";
+import axios from "axios";
 
 export const Layout = ({ libraryData, setLibraryData }) => {
   const location = useLocation();
   const { pathname } = location;
   const [error, setError] = useState(null);
-  const isReading = location.pathname.includes("/series")
-console.log(isReading)
+  const isReading = location.pathname.includes("/series");
+  console.log(isReading);
 
   console.log(location);
 
@@ -45,8 +46,11 @@ console.log(isReading)
     if (checkIfExist(data.link)) return;
 
     try {
-      const res = await fetch("http://localhost:3000/library/add", options);
-      const result = res.json();
+      const res = await axios.post("http://localhost:3000/library/add", {
+        UUID: uuid,
+        data,
+      });
+      const result = res.data;
       console.log("Added", result);
 
       setLibraryData((prev) => {
@@ -73,8 +77,11 @@ console.log(isReading)
     console.log("Data to remove:", data);
     if (!checkIfExist(data.link)) return;
     try {
-      const res = await fetch("http://localhost:3000/library/remove", options);
-      const result = res.json();
+      const res = await axios.post("http://localhost:3000/library/remove", {
+        UUID: uuid,
+        link,
+      });
+      const result = res.data;
       console.log("Added", result);
 
       setLibraryData((prev) => {
@@ -88,7 +95,7 @@ console.log(isReading)
   return (
     <>
       <Outlet />
-      <nav className={isReading? "hidden": ""}>
+      <nav className={isReading ? "hidden" : ""}>
         <NavLink to="/">
           <FontAwesomeIcon icon={faBook} />
           Library

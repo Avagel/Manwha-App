@@ -11,6 +11,7 @@ import { OverviewPage } from "./pages/OverviewPage";
 import { ReadingPage } from "./pages/ReadingPage";
 import { HistoryPage } from "./pages/HistoryPage";
 import { reducer } from "./Reducer";
+import axios from "axios";
 
 function App() {
   const [currentPage, setCurrentPage] = useState(<LibraryPage />);
@@ -21,20 +22,13 @@ function App() {
 
   const addToHistory = async (data) => {
     const uuid = localStorage.getItem("manhwaUUID");
-    const options = {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
+  
+    try {
+      const res = await axios.post("http://localhost:3000/history/add", {
         UUID: uuid,
         data: { ...data },
-      }),
-    };
-
-    try {
-      const res = await fetch("http://localhost:3000/history/add", options);
-      const result = res.json();
+      });
+      const result = res.data
       console.log("Added", result);
 
       const check = historyData.filter(

@@ -4,6 +4,7 @@ import { HistoryCard } from "../components/HistoryCard";
 import { LoadingCard } from "../components/LoadingCard";
 import { LoadingCardHIstory } from "../components/LoadingCardHistory";
 import { data } from "react-router";
+import axios from "axios";
 
 export const HistoryPage = ({ historyData, setHistoryData }) => {
   const dummy = [5, 5, 5, 5, 5, 5];
@@ -26,19 +27,11 @@ export const HistoryPage = ({ historyData, setHistoryData }) => {
 
     // example: "550e8400-e29b-41d4-a716-446655440000"
 
-    const options = {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        UUID: uuid,
-      }),
-    };
-
     try {
-      const res = await fetch("http://localhost:3000/history/fetch", options);
-      const result = await res.json();
+      const res = await axios.post("http://localhost:3000/history/fetch", {
+        UUID: uuid,
+      });
+      const result = res.data;
       console.log("successful: ", result);
       setHistoryData(result.history);
       setLoading(false);
@@ -59,8 +52,11 @@ export const HistoryPage = ({ historyData, setHistoryData }) => {
       }),
     };
     try {
-      const res = await fetch("http://localhost:3000/history/remove", options);
-      const result = res.json();
+      const res = await axios.post("http://localhost:3000/history/remove", {
+        UUID: uuid,
+        link,
+      });
+      const result = res.data;
       console.log("Added", result);
 
       setHistoryData((prev) => {
@@ -108,4 +104,3 @@ export const HistoryPage = ({ historyData, setHistoryData }) => {
     </div>
   );
 };
-

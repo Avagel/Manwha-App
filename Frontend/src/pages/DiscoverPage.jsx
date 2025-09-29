@@ -4,6 +4,7 @@ import { ManwhaCard } from "../components/ManhwaCard";
 import { useEffect, useState } from "react";
 import Loader from "../components/Loader";
 import { LoadingCard } from "../components/LoadingCard";
+import axios from "axios";
 
 export const DiscoverPage = ({ latest, setLatest, popular, setPopular,setManwhaData }) => {
   const [search, setSearch] = useState("");
@@ -27,8 +28,8 @@ export const DiscoverPage = ({ latest, setLatest, popular, setPopular,setManwhaD
 
   const fetchPopular = async () => {
     try {
-      const res = await fetch("http://localhost:3000/manhwa/popular");
-      const result = await res.json();
+      const res = await axios.get("http://localhost:3000/manhwa/popular");
+      const result = res.data
       setPopular(result);
     } catch (error) {
       setError(error);
@@ -36,8 +37,8 @@ export const DiscoverPage = ({ latest, setLatest, popular, setPopular,setManwhaD
   };
   const fetchLatest = async () => {
     try {
-      const res = await fetch("http://localhost:3000/manhwa/latest");
-      const result = await res.json();
+      const res = await axios.get("http://localhost:3000/manhwa/latest");
+      const result = res.data
       console.log(result);
       setLatest(result);
     } catch (error) {

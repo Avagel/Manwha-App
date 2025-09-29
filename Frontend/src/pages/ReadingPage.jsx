@@ -4,6 +4,7 @@ import { Header } from "../components/Header";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faBackward, faL } from "@fortawesome/free-solid-svg-icons";
 import Loader from "../components/Loader";
+import axios from "axios";
 
 export const ReadingPage = ({ addToHistory }) => {
   const allChapters = JSON.parse(localStorage.getItem("allChapters"));
@@ -77,8 +78,8 @@ export const ReadingPage = ({ addToHistory }) => {
       }),
     };
     try {
-      const res = await fetch("http://localhost:3000/manhwa/pages", options);
-      const result = await res.json();
+      const res = await axios.post("http://localhost:3000/manhwa/pages", {link, signal:controller.signal});
+      const result = res.data
       setImages(result);
       console.log(result);
     } catch (error) {
