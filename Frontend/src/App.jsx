@@ -21,13 +21,14 @@ function App() {
   const [historyData, setHistoryData] = useState([]);
   const [current, setCurrent] = useState("latest");
   const [filter, setFilter] = useState([]);
+  const API_URL = import.meta.env.VITE_API_URL;
 
   const addToHistory = async (data) => {
     const uuid = localStorage.getItem("manhwaUUID");
     console.log("Data adding to history: ", data);
 
     try {
-      const res = await axios.post("http://localhost:3000/history/add", {
+      const res = await axios.post(`${API_URL}/history/add`, {
         UUID: uuid,
         data: { ...data },
       });

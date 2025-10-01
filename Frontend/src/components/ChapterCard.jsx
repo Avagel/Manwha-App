@@ -6,6 +6,7 @@ export const ChapterCard = ({ data, setHistoryData }) => {
   const { title, link, date, img } = data;
   const [error, setError] = useState(null);
   data.time = new Date().getTime();
+  const API_URL = import.meta.env.VITE_API_URL;
 
   const handleClick = () => {
     // addToHistory();
@@ -26,7 +27,7 @@ export const ChapterCard = ({ data, setHistoryData }) => {
     };
 
     try {
-      const res = await fetch("http://localhost:3000/history/add", options);
+      const res = await fetch(`${API_URL}/history/add`, options);
       const result = res.json();
       console.log("Added", result);
 

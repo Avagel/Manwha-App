@@ -28,6 +28,7 @@ export const ReadingPage = ({ addToHistory }) => {
   const scrollTimeout = useRef(null);
   const { lin, chapterId } = useParams();
   const _link = lin + "/chapter/" + chapterId;
+  const API_URL = import.meta.env.VITE_API_URL;
 
   // const { link } = data;
 
@@ -68,7 +69,7 @@ export const ReadingPage = ({ addToHistory }) => {
 
   const fetchImages = async (link, controller) => {
     try {
-      const res = await axios.post("http://localhost:3000/manhwa/pages", {
+      const res = await axios.post(`${API_URL}/manhwa/pages`, {
         link: _link,
         signal: controller.signal,
       });

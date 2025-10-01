@@ -25,6 +25,7 @@ export const DiscoverPage = ({
   const [filterOpen, setFilterOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const[search,setSearch] = useState("");
+  const API_URL = import.meta.env.VITE_API_URL;
 
   const data = current == "latest" ? latest : popular;
   const dummy = [5, 5, 5, 5, 5, 5];
@@ -44,7 +45,7 @@ export const DiscoverPage = ({
 
   const fetchPopular = async () => {
     try {
-      const res = await axios.get("http://localhost:3000/manhwa/popular");
+      const res = await axios.get(`${API_URL}/manhwa/popular`);
       const result = res.data;
       setPopular(result);
     } catch (error) {
@@ -53,7 +54,7 @@ export const DiscoverPage = ({
   };
   const fetchLatest = async () => {
     try {
-      const res = await axios.get("http://localhost:3000/manhwa/latest");
+      const res = await axios.get(`${API_URL}/manhwa/latest`);
       const result = res.data;
       console.log(result);
       setLatest(result);
@@ -88,7 +89,7 @@ export const DiscoverPage = ({
     }
 
     try {
-      const res = await axios.post("http://localhost:3000/manhwa/filter", {
+      const res = await axios.post(`${API_URL}/manhwa/filter`, {
         genre: genres,
         type,
         status,
@@ -110,7 +111,7 @@ export const DiscoverPage = ({
     setLoading(true);
     setCurrent("filter");
     try {
-      const res = await axios.post("http://localhost:3000/manhwa/search",{search});
+      const res = await axios.post(`${API_URL}/manhwa/search`,{search});
       const result = res.data;
       setFilter(result);
     } catch (error) {

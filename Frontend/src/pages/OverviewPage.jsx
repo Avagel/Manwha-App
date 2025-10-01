@@ -12,6 +12,7 @@ export const OverviewPage = ({ setHistoryData }) => {
   const location = useLocation();
   const { data } = location.state || {};
   const dummy = [5];
+  const API_URL = import.meta.env.VITE_API_URL;
 
   const [manhwaData, setManhwaData] = useState({ ...data });
   // const [refreshKey, setRefreshKey] = useState(0);
@@ -25,7 +26,7 @@ export const OverviewPage = ({ setHistoryData }) => {
   //fetch data
   const fetchOtherData = async () => {
     try {
-      const res = await axios.post("http://localhost:3000/manhwa/details", {
+      const res = await axios.post(`${API_URL}/manhwa/details`, {
         link: data.link,
       });
       const result = res.data;
@@ -42,8 +43,9 @@ export const OverviewPage = ({ setHistoryData }) => {
     }
   };
   const { title, img, genres, chapters, summary, link, rating } = manhwaData;
-  console.log(link)
-  if (chapters) localStorage.setItem("allChapters" + title, JSON.stringify(chapters));
+  console.log(link);
+  if (chapters)
+    localStorage.setItem("allChapters" + title, JSON.stringify(chapters));
 
   return (
     <>

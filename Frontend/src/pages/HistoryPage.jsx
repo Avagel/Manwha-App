@@ -13,6 +13,7 @@ export const HistoryPage = ({ historyData, setHistoryData }) => {
   const [search, setSearch] = useState("");
   const [loading, setLoading] = useState(true);
   console.log(historyData);
+  const API_URL = import.meta.env.VITE_API_URL;
 
   useEffect(() => {
     if (historyData && historyData.length > 0) {
@@ -30,7 +31,7 @@ export const HistoryPage = ({ historyData, setHistoryData }) => {
     // example: "550e8400-e29b-41d4-a716-446655440000"
 
     try {
-      const res = await axios.post("http://localhost:3000/history/fetch", {
+      const res = await axios.post(`${API_URL}/history/fetch`, {
         UUID: uuid,
       });
       const result = res.data;
@@ -54,7 +55,7 @@ export const HistoryPage = ({ historyData, setHistoryData }) => {
       }),
     };
     try {
-      const res = await axios.post("http://localhost:3000/history/remove", {
+      const res = await axios.post(`${API_URL}/history/remove`, {
         UUID: uuid,
         link,
       });

@@ -32,7 +32,7 @@ export const LibraryPage = ({ libraryData, setLibraryData, setManhwaData }) => {
     // example: "550e8400-e29b-41d4-a716-446655440000"
 
     try {
-      const res = await axios.post("http://localhost:3000/user/add", {
+      const res = await axios.post(`${API_URL}/user/add`, {
         UUID: uuid,
       });
       console.log(res.data);
@@ -60,7 +60,7 @@ export const LibraryPage = ({ libraryData, setLibraryData, setManhwaData }) => {
     };
 
     try {
-      const res = await axios.post("http://localhost:3000/library/fetch", {
+      const res = await axios.post(`${API_URL}/library/fetch`, {
         UUID: uuid,
       });
       const result = res.data;
