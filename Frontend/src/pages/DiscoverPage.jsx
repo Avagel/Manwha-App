@@ -183,8 +183,6 @@ export const DiscoverPage = ({
             ) : (
               filter.map((data, index) => {
                 const { title } = data;
-
-      
                 return <ManwhaCard key={index} data={data} />;
               })
             )

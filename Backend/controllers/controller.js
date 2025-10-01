@@ -3,8 +3,11 @@ const axios = require("axios");
 const cheerio = require("cheerio");
 const { MongoClient } = require("mongodb");
 const { redisClient } = require("../redisClient");
+require("dotenv").config();
+const { connectDB, db } = require("../mongo");
 
-let db;
+// let db;
+connectDB();
 
 async function scrapePage(url, selector) {
   const browser = await chromium.launch({ headless: true });
@@ -284,17 +287,6 @@ exports.getManhwaPages = async (req, response) => {
     });
   }
 };
-async function connectDB() {
-  try {
-    const client = await MongoClient.connect(process.env.MONGO_URI);
-    db = client.db(); // default DB name from URI
-    console.log("✅ MongoDB Connected");
-    return { status: true, message: "Connected" };
-  } catch (err) {
-    console.error("❌ MongoDB Connection Error:", err);
-    return { status: false, message: err };
-  }
-}
 exports.addUser = async (req, res) => {
   const { UUID } = req.body;
   if (!db) {
