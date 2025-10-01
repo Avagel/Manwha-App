@@ -6,7 +6,7 @@ export const ChapterCard = ({ data, setHistoryData }) => {
   const { title, link, date, img } = data;
   const [error, setError] = useState(null);
   data.time = new Date().getTime();
-  const API_URL = import.meta.env.VITE_API_URL;
+  const API_URL = import.meta.env.NEXT_PUBLIC_API_URL;
 
   const handleClick = () => {
     // addToHistory();

@@ -25,7 +25,7 @@ export const DiscoverPage = ({
   const [filterOpen, setFilterOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const[search,setSearch] = useState("");
-  const API_URL = import.meta.env.VITE_API_URL;
+  const API_URL = import.meta.env.NEXT_PUBLIC_API_URL;
 
   const data = current == "latest" ? latest : popular;
   const dummy = [5, 5, 5, 5, 5, 5];
