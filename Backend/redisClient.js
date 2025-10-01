@@ -10,6 +10,16 @@ REDIS_URI = {
 };
 
 const redisClient = createClient(REDIS_URI);
+
 redisClient.on("error", (err) => console.error("Redis Client Error", err));
 
-exports.redisClient = redisClient;
+async function connectRedis() {
+  if (!redisClient.isOpen) {
+    await redisClient.connect();
+    console.log("✅ Connected to Redis");
+  }
+}
+
+connectRedis();
+
+module.exports = { redisClient };

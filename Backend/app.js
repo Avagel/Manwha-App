@@ -43,7 +43,7 @@ app.post("/library/add", addToLibrary);
 app.post("/library/remove", removeFromLibrary);
 
 const startServer = async () => {
-  await redisClient.connect(); // ✅ connect once at startup
+   // ✅ connect once at startup
 
   app.listen(port, () => {
     console.log("Server running on port: " + port);
