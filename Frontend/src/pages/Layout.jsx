@@ -22,6 +22,9 @@ export const Layout = ({ libraryData, setLibraryData }) => {
   console.log(location);
 
   const checkIfExist = (link) => {
+    if(!link)
+      return false
+
     const check = libraryData?.filter((item) => item.link == link) || [];
     console.log("Check", check);
 
@@ -32,17 +35,7 @@ export const Layout = ({ libraryData, setLibraryData }) => {
   const addToLibrary = async () => {
     const { data } = location.state;
     const uuid = localStorage.getItem("manhwaUUID");
-    const options = {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        UUID: uuid,
-        data,
-      }),
-    };
-    console.log("Data to Add:", data);
+    console.log("Data to Add:", data);  
     if (checkIfExist(data.link)) return;
 
     try {
@@ -104,7 +97,7 @@ export const Layout = ({ libraryData, setLibraryData }) => {
           <FontAwesomeIcon icon={faHistory} />
           History
         </NavLink>
-        {pathname.includes("/overview") ? (
+        {pathname.includes("/overview") && location.state ? (
           <div>
             {checkIfExist(location.state.data.link) ? (
               <>

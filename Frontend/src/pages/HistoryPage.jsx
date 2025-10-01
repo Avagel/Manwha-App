@@ -4,7 +4,9 @@ import { HistoryCard } from "../components/HistoryCard";
 import { LoadingCard } from "../components/LoadingCard";
 import { LoadingCardHIstory } from "../components/LoadingCardHistory";
 import { data } from "react-router";
+import { NavLink } from "react-router";
 import axios from "axios";
+import sadtear from "../assets/sadtear.svg";
 
 export const HistoryPage = ({ historyData, setHistoryData }) => {
   const dummy = [5, 5, 5, 5, 5, 5];
@@ -90,8 +92,10 @@ export const HistoryPage = ({ historyData, setHistoryData }) => {
           </div>
         ) : (
           <div className="none">
-            nothing <br />
-            in History
+            <img src={sadtear} alt="" />
+            <p>
+             Nothing in History
+            </p>
           </div>
         )
       ) : (

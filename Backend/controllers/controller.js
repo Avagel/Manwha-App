@@ -35,7 +35,7 @@ async function scrapePage(url, selector) {
 
 exports.getLatest = async (req, response) => {
   const cached = await redisClient.get("latest");
-  if (cached) {
+  if (cached && JSON.parse(cached).length > 0) {
     return response.json(JSON.parse(cached));
   }
 
@@ -49,6 +49,7 @@ exports.getLatest = async (req, response) => {
     $(".w-full.p-1").each((index, element) => {
       const title = $(element).find("span a").contents().first().text();
       const img = $(element).find("img").attr("src");
+
       const link = $(element).find("a").attr("href");
       if (img === undefined) return;
       if (img.indexOf("https") === -1) return;
@@ -57,12 +58,12 @@ exports.getLatest = async (req, response) => {
     });
     console.log(mangaList);
 
-    await redisClient.setEx("latest", 3600, JSON.stringify(mangaList));
+    // await redisClient.setEx("latest", 3600, JSON.stringify(mangaList));
     response.json(mangaList);
   } catch (err) {
     return response.status(500).json({
       message: "Failed to scrape page",
-      error: err.message, // only send safe info
+      error: err, // only send safe info
     });
   }
 };
@@ -95,9 +96,100 @@ exports.getPopular = async (req, response) => {
   } catch (err) {
     return response.status(500).json({
       message: "Failed to scrape page",
-      error: err.message, // only send safe info
+      error: err, // only send safe info
     });
   }
+};
+
+exports.getFilter = async (req, response) => {
+  const { genre, status, type, order } = req.body;
+
+  const cached = await redisClient.get("filter");
+  // if (cached && JSON.parse(cached).length > 0) {
+  //   console.log("Cached",JSON.parse(cached))
+  //   return response.json(JSON.parse(cached));
+  // }
+  // search the url and get the html
+  const mangaList = [];
+  let pg = 1;
+  while (true) {
+    try {
+      const res = await axios.get(
+        `https://asuracomic.net/series?page=${pg}&genres=${genre}&status=${status}&types=${type}&order=${order}`
+      );
+      console.log("viewing page " + pg);
+      const html = res.data;
+      const $ = cheerio.load(html);
+      let found = false;
+
+      $("a").each((index, element) => {
+        const title = $(element).find("span.block").text();
+        const img = $(element).find("img").attr("src");
+        const link = $(element).attr("href");
+        if (img === undefined) return;
+        if (img.indexOf("https") === -1) return;
+        // console.log("Title: ", title);
+        if (link && link.startsWith("series/")) {
+          mangaList.push({ img, title, link });
+          found = true;
+          // filter only the ones you need (so you don't get menu/footer links)
+        }
+      });
+      if (found == false) break;
+
+      await redisClient.setEx("filter", 3600, JSON.stringify(mangaList));
+
+      pg++;
+    } catch (err) {
+      return response.status(500).json({
+        message: "Failed to scrape page",
+        error: err, // only send safe info
+      });
+    }
+  }
+
+  response.json(mangaList);
+};
+exports.getSearch = async (req, response) => {
+  const { search } = req.body;
+  console.log("searching", search);
+  const cached = await redisClient.get(search);
+  if (cached && JSON.parse(cached).length > 0) {
+    console.log("Cached", JSON.parse(cached));
+    return response.json(JSON.parse(cached));
+  }
+  // search the url and get the html
+  const mangaList = [];
+
+  try {
+    const res = await axios.get(
+      `https://asuracomic.net/series?page=1&name=${search}`
+    );
+    const html = res.data;
+    const $ = cheerio.load(html);
+
+    $("a").each((index, element) => {
+      const title = $(element).find("span.block").text();
+      const img = $(element).find("img").attr("src");
+      const link = $(element).attr("href");
+      if (img === undefined) return;
+      if (img.indexOf("https") === -1) return;
+      // console.log("Title: ", title);
+      if (link && link.startsWith("series/")) {
+        mangaList.push({ img, title, link });
+        // filter only the ones you need (so you don't get menu/footer links)
+      }
+    });
+
+    await redisClient.setEx(search, 3600, JSON.stringify(mangaList));
+  } catch (err) {
+    console.log("error", err);
+    return response.status(500).json({
+      message: "Failed to scrape page",
+      error: err, // only send safe info
+    });
+  }
+  response.json(mangaList);
 };
 
 exports.getManwhaDetails = async (req, response) => {
@@ -159,7 +251,7 @@ exports.getManwhaDetails = async (req, response) => {
   } catch (err) {
     return response.status(500).json({
       message: "Failed to scrape page",
-      error: err.message, // only send safe info
+      error: err, // only send safe info
     });
   }
 };
@@ -188,7 +280,7 @@ exports.getManhwaPages = async (req, response) => {
   } catch (err) {
     return response.status(500).json({
       message: "Failed to scrape page",
-      error: err.message, // only send safe info
+      error: err, // only send safe info
     });
   }
 };
@@ -199,8 +291,8 @@ async function connectDB() {
     console.log("✅ MongoDB Connected");
     return { status: true, message: "Connected" };
   } catch (err) {
-    console.error("❌ MongoDB Connection Error:", err.message);
-    return { status: false, message: err.message };
+    console.error("❌ MongoDB Connection Error:", err);
+    return { status: false, message: err };
   }
 }
 exports.addUser = async (req, res) => {
@@ -219,7 +311,7 @@ exports.addUser = async (req, res) => {
     res.json("sucessful");
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: "Internal Server Error" });
+    res.status(500).json({ error: err });
   }
 };
 exports.checkUser = async (req, res) => {
@@ -239,7 +331,7 @@ exports.checkUser = async (req, res) => {
     res.json(result);
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: "Internal Server Error" });
+    res.status(500).json({ error: err });
   }
 };
 exports.addToLibrary = async (req, res) => {
@@ -262,7 +354,7 @@ exports.addToLibrary = async (req, res) => {
     res.json(result);
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: "Internal Server Error" });
+    res.status(500).json({ error: err });
   }
 };
 exports.addToHistory = async (req, res) => {
@@ -302,7 +394,7 @@ exports.addToHistory = async (req, res) => {
     res.json(result);
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: "Internal Server Error" });
+    res.status(500).json({ error: err });
   }
 };
 
@@ -332,7 +424,7 @@ exports.fetchLibrary = async (req, res) => {
     res.json(result);
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: "Internal Server Error" });
+    res.status(500).json({ error: err });
   }
 };
 exports.fetchHistory = async (req, res) => {
@@ -358,7 +450,7 @@ exports.fetchHistory = async (req, res) => {
     res.json(result);
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: "Internal Server Error" });
+    res.status(500).json({ error: err });
   }
 };
 
@@ -387,7 +479,7 @@ exports.removeFromLibrary = async (req, res) => {
     res.json(result);
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: "Internal Server Error" });
+    res.status(500).json({ error: err });
   }
 };
 exports.removeFromHistory = async (req, res) => {
@@ -415,6 +507,6 @@ exports.removeFromHistory = async (req, res) => {
     res.json(result);
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: "Internal Server Error" });
+    res.status(500).json({ error: err });
   }
 };

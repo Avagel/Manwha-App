@@ -11,11 +11,13 @@ const {
   fetchLibrary,
   removeFromLibrary,
   removeFromHistory,
+  getFilter,
+  getSearch,
 } = require("./controllers/controller");
 
 const express = require("express");
 const cors = require("cors");
-const {redisClient} = require("./redisClient")
+const { redisClient } = require("./redisClient");
 const app = express();
 require("dotenv").config();
 const port = process.env.PORT;
@@ -26,6 +28,8 @@ app.get("/manhwa/latest", getLatest);
 app.get("/manhwa/popular", getPopular);
 app.post("/manhwa/details", getManwhaDetails);
 app.post("/manhwa/pages", getManhwaPages);
+app.post("/manhwa/filter", getFilter);
+app.post("/manhwa/search", getSearch);
 
 app.post("/user/check", checkUser);
 app.post("/user/add", addUser);

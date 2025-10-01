@@ -4,7 +4,9 @@ import { ManwhaCard } from "../components/ManhwaCard";
 import { LoadingCard } from "../components/LoadingCard";
 import { v4 as uuidv4 } from "uuid";
 import none from "../assets/none.svg";
+import sadtear from "../assets/sadtear.svg";
 import axios from "axios";
+import { NavLink } from "react-router";
 
 export const LibraryPage = ({ libraryData, setLibraryData, setManhwaData }) => {
   const dummy = [5, 5, 5, 5, 5, 5];
@@ -27,20 +29,11 @@ export const LibraryPage = ({ libraryData, setLibraryData, setManhwaData }) => {
 
     // example: "550e8400-e29b-41d4-a716-446655440000"
 
-    const options = {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        UUID: uuid,
-      }),
-    };
     try {
       const res = await axios.post("http://localhost:3000/user/add", {
         UUID: uuid,
       });
-      console.log(res.data)
+      console.log(res.data);
       const result = res.data;
       console.log("successful: ", result);
       localStorage.setItem("manhwaUUID", uuid);
@@ -68,7 +61,7 @@ export const LibraryPage = ({ libraryData, setLibraryData, setManhwaData }) => {
       const res = await axios.post("http://localhost:3000/library/fetch", {
         UUID: uuid,
       });
-      const result = res.data
+      const result = res.data;
       console.log("successful: ", result);
 
       setLibraryData(result.manhwas);
@@ -98,7 +91,11 @@ export const LibraryPage = ({ libraryData, setLibraryData, setManhwaData }) => {
           </div>
         ) : (
           <div className="none">
-            <img src={none} alt="" />
+            <img src={sadtear} alt="" />
+            <p>
+              No Manhwa in Library <br/> go to
+              {<NavLink to="discover"> Discover</NavLink>}
+            </p>
           </div>
         )
       ) : (

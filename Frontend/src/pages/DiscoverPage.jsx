@@ -5,13 +5,29 @@ import { useEffect, useState } from "react";
 import Loader from "../components/Loader";
 import { LoadingCard } from "../components/LoadingCard";
 import axios from "axios";
+import sadtear from "../assets/sadtear.svg";
+import { DiscoverFilter } from "../components/DiscoverFilter";
 
-export const DiscoverPage = ({ latest, setLatest, popular, setPopular,setManwhaData }) => {
-  const [search, setSearch] = useState("");
+export const DiscoverPage = ({
+  latest,
+  setLatest,
+  popular,
+  setPopular,
+  setManwhaData,
+  current,
+  setCurrent,
+  filter,
+  setFilter,
+}) => {
+  
   const [error, setError] = useState(null);
-  const [current, setCurrent] = useState("latest");
+
+  const [filterOpen, setFilterOpen] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const[search,setSearch] = useState("");
+
   const data = current == "latest" ? latest : popular;
-  const dummy = [5,5,5,5,5,5]
+  const dummy = [5, 5, 5, 5, 5, 5];
 
   useEffect(() => {
     if (popular.length) return;
@@ -29,7 +45,7 @@ export const DiscoverPage = ({ latest, setLatest, popular, setPopular,setManwhaD
   const fetchPopular = async () => {
     try {
       const res = await axios.get("http://localhost:3000/manhwa/popular");
-      const result = res.data
+      const result = res.data;
       setPopular(result);
     } catch (error) {
       setError(error);
@@ -38,22 +54,83 @@ export const DiscoverPage = ({ latest, setLatest, popular, setPopular,setManwhaD
   const fetchLatest = async () => {
     try {
       const res = await axios.get("http://localhost:3000/manhwa/latest");
-      const result = res.data
+      const result = res.data;
       console.log(result);
       setLatest(result);
     } catch (error) {
       setError(error);
     }
   };
+  const handleFilter = async (selectedFilters) => {
+    setCurrent("filter");
+    setFilterOpen(false);
+    setLoading(true);
 
+    let [genres, type, status, order] = selectedFilters;
+
+    if (genres.length == 0) {
+      genres = "0";
+    } else {
+      genres = genres.join("%2C");
+    }
+
+    switch (order) {
+      case "Last Updated":
+        order = "update";
+      case "Rating":
+        order = "rating";
+      case "Bookmark Count":
+        order = "bookmarks";
+      case "Name (Z-A)":
+        order = "desc";
+      case "Name (A-Z)":
+        order = "asc";
+    }
+
+    try {
+      const res = await axios.post("http://localhost:3000/manhwa/filter", {
+        genre: genres,
+        type,
+        status,
+        order,
+      });
+      const result = res.data;
+      console.log(result);
+
+      setLoading(false);
+      setFilter(result);
+    } catch (error) {
+      console.log(error);
+      setError(error);
+    }
+
+    console.log([genres, type, status, order]);
+  };
+  const handleSearch = async (search) => {
+    setLoading(true);
+    setCurrent("filter");
+    try {
+      const res = await axios.post("http://localhost:3000/manhwa/search",{search});
+      const result = res.data;
+      setFilter(result);
+    } catch (error) {
+      setError(error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <div className="discover-page page">
-      <Header setSearch={setSearch} val={"Discover"} />
+      <Header  
+      setSearch={setSearch}
+        val={"Discover"}
+        handleSearch={handleSearch}
+      />
 
       <div className="discover-nav">
         <button
-          className={current == "latest"? "active":""}
+          className={current == "latest" ? "active" : ""}
           onClick={() => {
             setCurrent("latest");
           }}
@@ -61,7 +138,7 @@ export const DiscoverPage = ({ latest, setLatest, popular, setPopular,setManwhaD
           Latest
         </button>
         <button
-          className={current == "popular" ? "active":""}
+          className={current == "popular" ? "active" : ""}
           onClick={() => {
             setCurrent("popular");
           }}
@@ -69,28 +146,64 @@ export const DiscoverPage = ({ latest, setLatest, popular, setPopular,setManwhaD
           Popular
         </button>
         <button
-          className={current == "popular" ? "active":""}
           onClick={() => {
-            setCurrent("popular");
+            setFilterOpen((prev) => !prev);
           }}
+          className={current == "filter" ? "active" : ""}
         >
           Filter
         </button>
       </div>
-      {error ? <div className="error">Error</div> : ""}
+      {filterOpen ? <DiscoverFilter handleFilter={handleFilter} /> : ""}
 
-      <div className="container">
-        {data.length > 0
-          ? data.map((data, index) => {
-            const {title} = data
+      {error ? (
+        <div className="error">
+          {" "}
+          <div className="none">
+            <img src={sadtear} alt="" />
+            <p>
+              No internet connection{" "}
+              <NavLink onClick={() => setRefreshKey((old) => old + 1)}>
+                Refresh
+              </NavLink>
+            </p>
+          </div>
+        </div>
+      ) : (
+        <div className="container">
+          {current == "filter" ? (
+            loading ? (
+              <Loader />
+            ) : filter.length == 0 ? (
+              <div className="none">
+                <img src={sadtear} alt="" />
+                <p>No Manhwa Found</p>
+              </div>
+            ) : (
+              filter.map((data, index) => {
+                const { title } = data;
+
+      
+                return <ManwhaCard key={index} data={data} />;
+              })
+            )
+          ) : data.length > 0 ? (
+            data.map((data, index) => {
+              const { title } = data;
+
               
-              if (title.toLocaleLowerCase().indexOf(search) === -1) return;
-              return <ManwhaCard key={index} data = {data}  />;
+              return <ManwhaCard key={index} data={data} />;
             })
-          : dummy.map((data, index) => {
+          ) : (
+            dummy.map((data, index) => {
               return <LoadingCard key={index} />;
-            })}
-      </div>
+            })
+          )}
+        </div>
+      )}
     </div>
   );
 };
+/*
+  genre status typr order
+*/

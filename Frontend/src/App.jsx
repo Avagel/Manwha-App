@@ -19,16 +19,19 @@ function App() {
   const [popular, setPopular] = useState([]);
   const [libraryData, setLibraryData] = useState(null);
   const [historyData, setHistoryData] = useState([]);
+  const [current, setCurrent] = useState("latest");
+  const [filter, setFilter] = useState([]);
 
   const addToHistory = async (data) => {
     const uuid = localStorage.getItem("manhwaUUID");
-  
+    console.log("Data adding to history: ", data);
+
     try {
       const res = await axios.post("http://localhost:3000/history/add", {
         UUID: uuid,
         data: { ...data },
       });
-      const result = res.data
+      const result = res.data;
       console.log("Added", result);
 
       const check = historyData.filter(
@@ -94,11 +97,15 @@ function App() {
                   setLatest={setLatest}
                   popular={popular}
                   setPopular={setPopular}
+                  current={current}
+                  setCurrent={setCurrent}
+                  filter={filter}
+                  setFilter={setFilter}
                 />
               }
             />
             <Route
-              path="series"
+              path="series/:lin/chapter/:chapterId"
               element={<ReadingPage addToHistory={addToHistory} />}
             />
           </Route>

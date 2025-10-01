@@ -1,30 +1,27 @@
 import { Header } from "../components/Header";
 import { GenreCard } from "../components/GenreCard";
 import { ChapterCard } from "../components/ChapterCard";
-import { useLocation } from "react-router";
+import { NavLink, useLocation } from "react-router";
 import { useState, useEffect } from "react";
+import { LoadingCard } from "../components/LoadingCard";
+import { LoadingCardOver } from "../components/LoadingCardOver";
+import sadtear from "../assets/sadtear.svg";
 import axios from "axios";
 
 export const OverviewPage = ({ setHistoryData }) => {
   const location = useLocation();
   const { data } = location.state || {};
+  const dummy = [5];
 
   const [manhwaData, setManhwaData] = useState({ ...data });
+  // const [refreshKey, setRefreshKey] = useState(0);
   const [error, setError] = useState(null);
 
   useEffect(() => {
     if (manhwaData.summary) return;
     fetchOtherData();
   }, []);
-  const options = {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      link: data.link,
-    }),
-  };
+
   //fetch data
   const fetchOtherData = async () => {
     try {
@@ -40,17 +37,29 @@ export const OverviewPage = ({ setHistoryData }) => {
         };
       });
     } catch (error) {
+      console.log("error " + error);
       setError(error);
     }
   };
   const { title, img, genres, chapters, summary, link, rating } = manhwaData;
-  if (chapters) localStorage.setItem("allChapters", JSON.stringify(chapters));
+  console.log(link)
+  if (chapters) localStorage.setItem("allChapters" + title, JSON.stringify(chapters));
 
   return (
     <>
       <Header val={"back"} />
       <div className="overview-page page">
-        {manhwaData.genres ? (
+        {error ? (
+          <div className="none">
+            <img src={sadtear} alt="" />
+            <p>
+              No internet connection{" "}
+              <NavLink onClick={() => setRefreshKey((old) => old + 1)}>
+                Refresh
+              </NavLink>
+            </p>
+          </div>
+        ) : manhwaData.genres ? (
           <div className="container">
             <div className="desc">
               <img src={img} alt="pic" />
@@ -81,7 +90,7 @@ export const OverviewPage = ({ setHistoryData }) => {
             </div>
           </div>
         ) : (
-          <div className="loading">loading</div>
+          <LoadingCardOver />
         )}
       </div>
     </>

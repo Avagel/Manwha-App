@@ -9,7 +9,7 @@ export const HistoryCard = ({ data, removeFromHistory }) => {
   const _time = new Date(time).toLocaleTimeString();
 
   const handleClick = () => {
-    navigate("/series", { state: { data } });
+    navigate("/series/" + link, { state: { data } });
   };
 
   const handleDelete = (e) => {
@@ -31,4 +31,3 @@ export const HistoryCard = ({ data, removeFromHistory }) => {
     </div>
   );
 };
-

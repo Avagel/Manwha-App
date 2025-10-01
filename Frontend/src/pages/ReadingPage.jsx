@@ -1,40 +1,38 @@
 import { useEffect, useState, useRef } from "react";
-import { useLocation, useNavigate } from "react-router";
+import { useLocation, useNavigate, useParams } from "react-router";
 import { Header } from "../components/Header";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faBackward, faL } from "@fortawesome/free-solid-svg-icons";
+import {
+  faBackspace,
+  faBackward,
+  faCaretLeft,
+  faForward,
+  faL,
+} from "@fortawesome/free-solid-svg-icons";
 import Loader from "../components/Loader";
 import axios from "axios";
+import sadtear from "../assets/sadtear.svg";
+import { NavLink } from "react-router";
 
 export const ReadingPage = ({ addToHistory }) => {
-  const allChapters = JSON.parse(localStorage.getItem("allChapters"));
   const location = useLocation();
-  const navigate = useNavigate();
   const { data } = location.state;
+  console.log(data.manhwaName);
+  const allChapters = JSON.parse(
+    localStorage.getItem("allChapters" + data.manhwaName)
+  );
+  const navigate = useNavigate();
   const [images, setImages] = useState(null);
   const [error, setError] = useState(null);
   const [showControls, setShowControls] = useState(false);
   const scrollTimeout = useRef(null);
-  const { link } = data;
-  console.log(data);
-  const _chapter = link.split("/");
-  const chapter = _chapter[_chapter.length - 1];
+  const { lin, chapterId } = useParams();
+  const _link = lin + "/chapter/" + chapterId;
 
-  const handleScroll = () => {
-    console.log("scroll");
-    // If user is scrolling, don’t show controls
-    setShowControls(false);
+  // const { link } = data;
 
-    // Add a small delay to distinguish between scroll vs tap
-    if (scrollTimeout.current) clearTimeout(scrollTimeout.current);
-
-    scrollTimeout.current = setTimeout(() => {
-      scrollTimeout.current = null; // allow taps again
-    }, 200); // 200ms after scroll ends
-  };
-
-  // Current state
-  console.log("Current state:", location.state);
+  // const _chapter = link.split("/");
+  const chapter = chapterId;
 
   const handleTap = () => {
     // Only toggle if not currently scrolling
@@ -44,72 +42,59 @@ export const ReadingPage = ({ addToHistory }) => {
   };
 
   useEffect(() => {
-    console.log("render")
+    console.log("fetchimg images " + _link);
+    data.date = new Date().toLocaleTimeString();
+    data.title = "Chapter " + chapterId;
+
+    addToHistory(data);
     const controller = new AbortController();
     setShowControls(true);
-    addToHistory(data);
     if (!images) {
-      fetchImages(link, controller);
+      fetchImages(_link, controller);
     }
 
     return () => {
       controller.abort();
     };
-  }, [link]);
-
+  }, [_link]);
 
   const checkIfExist = (link) => {
+    console.log("link to check: ", link);
     const manhwa = allChapters.filter((manhwa) => manhwa.link == link);
-    console.log(manhwa);
+
     if (manhwa.length > 0) return true;
     return false;
   };
 
   const fetchImages = async (link, controller) => {
-    console.log("Fetchong: ", link);
-    const options = {
-      signal: controller.signal,
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        link,
-      }),
-    };
     try {
-      const res = await axios.post("http://localhost:3000/manhwa/pages", {link, signal:controller.signal});
-      const result = res.data
+      const res = await axios.post("http://localhost:3000/manhwa/pages", {
+        link: _link,
+        signal: controller.signal,
+      });
+      const result = res.data;
       setImages(result);
-      console.log(result);
     } catch (error) {
-      if (error.name === "AbortError") {
-        // request was cancelled on purpose -> ignore
-        console.log("Fetch aborted");
-        return;
-      }
+      console.log(error);
       setError(error);
     }
   };
   const changeChap = (to) => {
-    let newLink = _chapter.slice(0, -1).join("/") + "/";
+    let newLink = lin + "/chapter/";
 
     // Increment chapter number
     const nextChapter =
       to == "next" ? Number(chapter) + 1 : Number(chapter) - 1;
+
     newLink += nextChapter;
 
-    console.log("check", checkIfExist(newLink));
     if (!checkIfExist(newLink)) {
-      console.log("manwha finished");
-      setError("Manhwa Finished");
+      alert("manwha Finished");
       return;
     }
 
-    console.log("New link ", newLink);
-
     data.link = newLink;
-    navigate(location.pathname, {
+    navigate("/series/" + newLink, {
       replace: true, // stays on the same URL
       state: { data },
     });
@@ -127,7 +112,7 @@ export const ReadingPage = ({ addToHistory }) => {
               }, 500);
             }}
           >
-            <FontAwesomeIcon icon={faBackward} />
+            <FontAwesomeIcon icon={faCaretLeft} />
           </button>
           <p className="chap-name">{"Chapter " + chapter}</p>
         </div>
@@ -137,31 +122,39 @@ export const ReadingPage = ({ addToHistory }) => {
               changeChap("prev");
             }}
           >
-            prev
+            <FontAwesomeIcon icon={faBackward} />
           </button>
           <button
             onClick={() => {
               changeChap("next");
             }}
           >
-            next
+            <FontAwesomeIcon icon={faForward} />
           </button>
         </div>
       </div>
 
-      {error ? error.message || String(error) : ""}
-
-      {images ? (
+      {error ? (
+        (
+          <div className="none">
+            <img src={sadtear} alt="" />
+            <p>
+              {error.message || "Unable to Load Manhwa"}
+              <NavLink onClick={() => setRefreshKey((old) => old + 1)}>
+                Refresh
+              </NavLink>
+            </p>
+          </div>
+        ) || String(error)
+      ) : images ? (
         images.map((img, index) => {
           return <img key={index} src={img} alt="" onClick={handleTap} />;
         })
       ) : (
         <>
           {" "}
-          <div className="loading">
-            {" "}
-            <Loader />
-          </div>
+          <div className="loading"> </div>
+          <Loader />
         </>
       )}
     </div>

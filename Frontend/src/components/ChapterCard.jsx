@@ -9,7 +9,7 @@ export const ChapterCard = ({ data, setHistoryData }) => {
 
   const handleClick = () => {
     // addToHistory();
-    navigate("/series", { state: { data } });
+    navigate("/series/" + link, { state: { data } });
   };
 
   const addToHistory = async () => {
