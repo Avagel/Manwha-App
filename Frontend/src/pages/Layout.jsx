@@ -18,12 +18,13 @@ export const Layout = ({ libraryData, setLibraryData }) => {
   const [error, setError] = useState(null);
   const isReading = location.pathname.includes("/series");
   console.log(isReading);
-  const API_URL = import.meta.env.NEXT_PUBLIC_API_URL;
+  const API_URL = import.meta.env.VITE_API_URL;
 
   console.log(location);
 
   const checkIfExist = (link) => {
-    if (!link) return false;
+    if(!link)
+      return false
 
     const check = libraryData?.filter((item) => item.link == link) || [];
     console.log("Check", check);
@@ -35,7 +36,7 @@ export const Layout = ({ libraryData, setLibraryData }) => {
   const addToLibrary = async () => {
     const { data } = location.state;
     const uuid = localStorage.getItem("manhwaUUID");
-    console.log("Data to Add:", data);
+    console.log("Data to Add:", data);  
     if (checkIfExist(data.link)) return;
 
     try {

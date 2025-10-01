@@ -28,7 +28,7 @@ export const ReadingPage = ({ addToHistory }) => {
   const scrollTimeout = useRef(null);
   const { lin, chapterId } = useParams();
   const _link = lin + "/chapter/" + chapterId;
-  const API_URL = import.meta.env.NEXT_PUBLIC_API_URL;
+  const API_URL = import.meta.env.VITE_API_URL;
 
   // const { link } = data;
 

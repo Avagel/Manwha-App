@@ -12,7 +12,7 @@ export const OverviewPage = ({ setHistoryData }) => {
   const location = useLocation();
   const { data } = location.state || {};
   const dummy = [5];
-  const API_URL = import.meta.env.NEXT_PUBLIC_API_URL;
+  const API_URL = import.meta.env.VITE_API_URL;
 
   const [manhwaData, setManhwaData] = useState({ ...data });
   // const [refreshKey, setRefreshKey] = useState(0);
