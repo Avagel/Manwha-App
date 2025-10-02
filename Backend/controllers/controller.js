@@ -61,25 +61,9 @@ scrapingClient.interceptors.request.use(
 );
 
 async function scrapePage(url, selector) {
-  
-   
-  const browser = await chromium.launch({
-    headless: true,
-    args: [
-      "--no-sandbox",
-      "--disable-setuid-sandbox",
-      "--disable-dev-shm-usage",
-      "--disable-accelerated-2d-canvas",
-      "--no-first-run",
-      "--no-zygote",
-      "--disable-gpu",
-      "--disable-web-security",
-      "--disable-features=site-per-process",
-      "--disable-background-timer-throttling",
-      "--disable-backgrounding-occluded-windows",
-      "--disable-renderer-backgrounding",
-    ],
-  });
+  const browser = await chromium.connect(
+    process.env.BROWSER_PLAYWRIGHT_ENDPOINT
+  );
 
   const context = await browser.newContext();
 
@@ -540,7 +524,7 @@ exports.fetchLibrary = async (req, res) => {
     const result = await getCollection("library").findOne(
       { UUID },
       { projection: { manhwas: 1, _id: 0 } } // only return "manhwas" field
-    );   
+    );
     console.log("fetch library result: ", result);
 
     if (!result) {
