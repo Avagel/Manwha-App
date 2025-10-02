@@ -4,10 +4,28 @@ const cheerio = require("cheerio");
 const { MongoClient } = require("mongodb");
 const { redisClient } = require("../redisClient");
 require("dotenv").config();
-const { connectDB, getCollection,db } = require("../mongo");
+const { connectDB, getCollection, db } = require("../mongo");
 
 // let db;
 connectDB();
+const scrapingClient = axios.create({
+  timeout: 10000,
+  headers: {
+    "User-Agent":
+      "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36",
+    Accept:
+      "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8",
+    "Accept-Language": "en-US,en;q=0.5",
+    "Accept-Encoding": "gzip, deflate, br",
+    Connection: "keep-alive",
+    "Upgrade-Insecure-Requests": "1",
+    "Sec-Fetch-Dest": "document",
+    "Sec-Fetch-Mode": "navigate",
+    "Sec-Fetch-Site": "none",
+    "Cache-Control": "max-age=0",
+    DNT: "1",
+  },
+});
 
 async function scrapePage(url, selector) {
   const browser = await chromium.launch({ headless: true });
@@ -44,7 +62,7 @@ exports.getLatest = async (req, response) => {
 
   // search the url and get the html
   try {
-    const res = await axios.get("https://asuracomic.net/");
+    const res = await scrapingClient.get("https://asuracomic.net/");
     const html = res.data;
     const $ = cheerio.load(html);
     const mangaList = [];
@@ -64,6 +82,7 @@ exports.getLatest = async (req, response) => {
     // await redisClient.setEx("latest", 3600, JSON.stringify(mangaList));
     response.json(mangaList);
   } catch (err) {
+    console.log(err);
     return response.status(500).json({
       message: "Failed to scrape page",
       error: err, // only send safe info
@@ -78,7 +97,7 @@ exports.getPopular = async (req, response) => {
     return response.json(JSON.parse(cached));
   }
   try {
-    const res = await axios.get("https://asuracomic.net/");
+    const res = await scrapingClient.get("https://asuracomic.net/");
     const html = res.data;
     const $ = cheerio.load(html);
     const mangaList = [];
@@ -117,7 +136,7 @@ exports.getFilter = async (req, response) => {
   let pg = 1;
   while (true) {
     try {
-      const res = await axios.get(
+      const res = await scrapingClient.get(
         `https://asuracomic.net/series?page=${pg}&genres=${genre}&status=${status}&types=${type}&order=${order}`
       );
       console.log("viewing page " + pg);
@@ -165,7 +184,7 @@ exports.getSearch = async (req, response) => {
   const mangaList = [];
 
   try {
-    const res = await axios.get(
+    const res = await scrapingClient.get(
       `https://asuracomic.net/series?page=1&name=${search}`
     );
     const html = res.data;
@@ -205,7 +224,7 @@ exports.getManwhaDetails = async (req, response) => {
   }
 
   try {
-    const res = await axios.get("https://asuracomic.net/" + link);
+    const res = await scrapingClient.get("https://asuracomic.net/" + link);
     const html = res.data;
     const $ = cheerio.load(html);
 
