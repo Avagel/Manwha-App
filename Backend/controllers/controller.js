@@ -4,7 +4,7 @@ const cheerio = require("cheerio");
 const { MongoClient } = require("mongodb");
 const { redisClient } = require("../redisClient");
 require("dotenv").config();
-const { connectDB, getCollection } = require("../mongo");
+const { connectDB, getCollection,db } = require("../mongo");
 
 // let db;
 connectDB();

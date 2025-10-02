@@ -46,7 +46,7 @@ app.post("/library/remove", removeFromLibrary);
 const startServer = async () => {
    // ✅ connect once at startup
 
-  app.listen(port, () => {
+  app.listen(port || 3000, () => {
     console.log("Server running on port: " + port);
   });
 };
