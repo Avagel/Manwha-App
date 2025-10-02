@@ -16,7 +16,7 @@ export const HistoryPage = ({ historyData, setHistoryData }) => {
   const API_URL = import.meta.env.VITE_API_URL;
 
   useEffect(() => {
-    if (historyData && historyData.length > 0) {
+    if (historyData.length && historyData.length > 0) {
       setLoading(false);
       return;
     }

@@ -39,6 +39,7 @@ export const LibraryPage = ({ libraryData, setLibraryData, setManhwaData }) => {
       const result = res.data;
       console.log("successful: ", result);
       localStorage.setItem("manhwaUUID", uuid);
+      fetchLibrary();
     } catch (error) {
       setError(error);
     }

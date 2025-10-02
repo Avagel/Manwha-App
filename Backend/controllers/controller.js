@@ -470,7 +470,7 @@ exports.addToLibrary = async (req, res) => {
   }
 
   try {
-    const result = await getCollectionn("library").updateOne(
+    const result = await getCollection("library").updateOne(
       { UUID },
       { $push: { manhwas: data } }
     );
@@ -540,7 +540,7 @@ exports.fetchLibrary = async (req, res) => {
     const result = await getCollection("library").findOne(
       { UUID },
       { projection: { manhwas: 1, _id: 0 } } // only return "manhwas" field
-    );
+    );   
     console.log("fetch library result: ", result);
 
     if (!result) {
