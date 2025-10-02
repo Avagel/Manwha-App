@@ -61,30 +61,108 @@ scrapingClient.interceptors.request.use(
 );
 
 async function scrapePage(url, selector) {
-  const browser = await chromium.launch({ headless: true });
-  const page = await browser.newPage();
+  const browser = await chromium.launch({
+    headless: true,
+    args: [
+      "--no-sandbox",
+      "--disable-setuid-sandbox",
+      "--disable-dev-shm-usage",
+      "--disable-accelerated-2d-canvas",
+      "--no-first-run",
+      "--no-zygote",
+      "--disable-gpu",
+      "--disable-web-security",
+      "--disable-features=site-per-process",
+      "--disable-background-timer-throttling",
+      "--disable-backgrounding-occluded-windows",
+      "--disable-renderer-backgrounding",
+    ],
+  });
 
-  // Block unnecessary resources for faster load
+  const context = await browser.newContext();
+
+  // Set a realistic viewport and user agent
+  await context.setExtraHTTPHeaders({
+    accept:
+      "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8",
+    "accept-language": "en-US,en;q=0.9",
+    "accept-encoding": "gzip, deflate, br",
+    "upgrade-insecure-requests": "1",
+  });
+
+  // Stealth: override navigator properties
+  await context.addInitScript(() => {
+    // Override webdriver property
+    Object.defineProperty(navigator, "webdriver", {
+      get: () => false,
+    });
+
+    // Override languages
+    Object.defineProperty(navigator, "languages", {
+      get: () => ["en-US", "en"],
+    });
+
+    // Override plugins
+    Object.defineProperty(navigator, "plugins", {
+      get: () => [1, 2, 3, 4, 5],
+    });
+  });
+
+  const page = await context.newPage();
+  
+  // Set a realistic user agent
+  
+
+  // Block unnecessary resources more selectively
   await page.route("**/*", (route) => {
     const type = route.request().resourceType();
-    if (["stylesheet", "font", "media"].includes(type)) {
+    // Only block heavy resources, allow essential ones
+    if (["font", "media", "imageset"].includes(type)) {
       route.abort();
     } else {
       route.continue();
     }
   });
 
-  // Go to the page
-  await page.goto(url, { waitUntil: "domcontentloaded" });
+  try {
+    console.log(`🌐 Navigating to: ${url}`);
 
-  // Wait for a key selector to be sure content is loaded
-  await page.waitForSelector(selector);
+    // Use networkidle instead of domcontentloaded for JS-heavy sites
+    await page.goto(url, {
+      waitUntil: "networkidle",
+      timeout: 30000,
+    });
 
-  // Get the rendered HTML
-  const content = await page.content();
+    console.log(`⏳ Waiting for selector: ${selector}`);
 
-  await browser.close();
-  return content;
+    // Wait for selector with timeout
+    await page.waitForSelector(selector, {
+      timeout: 15000,
+      state: "attached",
+    });
+
+    // Additional wait for any dynamic content
+    await page.waitForTimeout(2000);
+
+    // Get the fully rendered HTML
+    const content = await page.content();
+    console.log(`✅ Successfully scraped: ${url}`);
+
+    return content;
+  } catch (error) {
+    console.error(`❌ Error scraping ${url}:`, error.message);
+
+    // Try to get whatever content we have
+    try {
+      const currentContent = await page.content();
+      console.log(`⚠️ Using partial content for ${url}`);
+      return currentContent;
+    } catch (fallbackError) {
+      throw new Error(`Scraping failed completely: ${error.message}`);
+    }
+  } finally {
+    await browser.close();
+  }
 }
 
 exports.getLatest = async (req, response) => {
@@ -334,6 +412,7 @@ exports.getManhwaPages = async (req, response) => {
     redisClient.setEx(link, 3600, JSON.stringify(images));
     response.json(images);
   } catch (err) {
+    console.log(err);
     return response.status(500).json({
       message: "Failed to scrape page",
       error: err, // only send safe info
