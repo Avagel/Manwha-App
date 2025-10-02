@@ -106,22 +106,14 @@ async function setupCollectionIndexes(collectionName) {
 
     switch (collectionName) {
       case "users":
-        await collection.createIndex({ email: 1 }, { unique: true });
-        await collection.createIndex({ username: 1 }, { unique: true });
+        await collection.createIndex({ UUID: 1 }, { unique: true });
         break;
       case "library":
-        await collection.createIndex(
-          { userId: 1, manwhaId: 1 },
-          { unique: true }
-        );
+        await collection.createIndex({ UUID: 1 }, { unique: true });
         await collection.createIndex({ userId: 1 });
         break;
       case "history":
-        await collection.createIndex(
-          { userId: 1, manwhaId: 1, chapterId: 1 },
-          { unique: true }
-        );
-        await collection.createIndex({ userId: 1, readAt: -1 });
+        await collection.createIndex({ UUID: 1 }, { unique: true });
         break;
     }
     console.log(`   📍 Indexes created for ${collectionName}`);
@@ -150,9 +142,14 @@ process.on("SIGINT", async () => {
   process.exit(0);
 });
 
+
+// Run once then remove
+
+
 // SAME EXPORTS AS BEFORE - NO CHANGES NEEDED
 module.exports = {
   connectDB,
   getDB,
   getCollection,
+  
 };

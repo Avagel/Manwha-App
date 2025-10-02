@@ -24,7 +24,6 @@ const port = process.env.PORT;
 app.use(cors());
 app.use(express.json());
 
-
 app.get("/manhwa/latest", getLatest);
 app.get("/manhwa/popular", getPopular);
 app.post("/manhwa/details", getManwhaDetails);
@@ -44,11 +43,16 @@ app.post("/library/add", addToLibrary);
 app.post("/library/remove", removeFromLibrary);
 
 const startServer = async () => {
-   // ✅ connect once at startup
+  // ✅ connect once at startup
 
   app.listen(port || 3000, () => {
     console.log("Server running on port: " + port);
   });
 };
+
+const { getCollection } = require("./mongo");
+
+
+// Add this to your mongo.js and run once, then remove it
 
 startServer();

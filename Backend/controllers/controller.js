@@ -4,10 +4,11 @@ const cheerio = require("cheerio");
 const { MongoClient } = require("mongodb");
 const { redisClient } = require("../redisClient");
 require("dotenv").config();
-const { connectDB, getCollection, db } = require("../mongo");
+const { connectDB, getCollection, db, dropAllIndexes } = require("../mongo");
 
 // let db;
 connectDB();
+
 const scrapingClient = axios.create({
   timeout: 20000,
   maxRedirects: 5,
