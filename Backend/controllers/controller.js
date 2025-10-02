@@ -4,7 +4,7 @@ const cheerio = require("cheerio");
 const { MongoClient } = require("mongodb");
 const { redisClient } = require("../redisClient");
 require("dotenv").config();
-const { connectDB, db } = require("../mongo");
+const { connectDB, getCollection } = require("../mongo");
 
 // let db;
 connectDB();
@@ -297,9 +297,9 @@ exports.addUser = async (req, res) => {
   }
 
   try {
-    await db.collection("users").insertOne({ UUID });
-    await db.collection("library").insertOne({ UUID, manhwas: [] });
-    await db.collection("history").insertOne({ UUID, history: [] });
+    await getCollection("users").insertOne({ UUID });
+    await getCollection("library").insertOne({ UUID, manhwas: [] });
+    await getCollection("history").insertOne({ UUID, history: [] });
     res.json("sucessful");
   } catch (err) {
     console.error(err);
@@ -316,7 +316,7 @@ exports.checkUser = async (req, res) => {
   }
 
   try {
-    const result = await db.collection("users").findOne({ UUID });
+    const result = await getCollection("users").findOne({ UUID });
     if (!result) {
       return res.json({ message: "No User found for this UUID" });
     }
@@ -361,7 +361,7 @@ exports.addToHistory = async (req, res) => {
   }
 
   try {
-    const collection = db.collection("history");
+    const collection = getCollection("history");
 
     // First check if the link already exists
     const existing = await collection.findOne({
@@ -403,7 +403,7 @@ exports.fetchLibrary = async (req, res) => {
 
   // fetch the user’s library by UUID
   try {
-    const result = await db.collection("library").findOne(
+    const result = await getCollection("library").findOne(
       { UUID },
       { projection: { manhwas: 1, _id: 0 } } // only return "manhwas" field
     );
@@ -432,7 +432,7 @@ exports.fetchHistory = async (req, res) => {
 
   // fetch the user’s library by UUID
   try {
-    const result = await db.collection("history").findOne({ UUID });
+    const result = await getCollection("history").findOne({ UUID });
     console.log("fetch history result: ", result);
 
     if (!result) {
@@ -459,9 +459,9 @@ exports.removeFromLibrary = async (req, res) => {
   }
 
   try {
-    const check = await db.collection("library").findOne({ UUID });
+    const check = await getCollection("library").findOne({ UUID });
     console.log("checkk", check);
-    const result = await db.collection("library").updateOne(
+    const result = await getCollection("library").updateOne(
       { UUID: UUID }, // user's library
       { $pull: { manhwas: { link: link } } }
     );
@@ -487,9 +487,9 @@ exports.removeFromHistory = async (req, res) => {
   }
 
   try {
-    const check = await db.collection("history").findOne({ UUID });
+    const check = await getCollection("history").findOne({ UUID });
     console.log("checkk", check);
-    const result = await db.collection("history").updateOne(
+    const result = await getCollection("history").updateOne(
       { UUID: UUID }, // user's library
       { $pull: { history: { link: link } } }
     );

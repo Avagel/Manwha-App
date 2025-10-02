@@ -155,5 +155,4 @@ module.exports = {
   connectDB,
   getDB,
   getCollection,
-  db,
 };
