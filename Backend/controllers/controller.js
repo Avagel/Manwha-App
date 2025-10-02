@@ -63,6 +63,7 @@ scrapingClient.interceptors.request.use(
 async function scrapePage(url, selector) {
   const browser = await chromium.launch({
     headless: true,
+    executablePath: process.env.CHROME_PATH || "/usr/bin/chromium-browser",
     args: [
       "--no-sandbox",
       "--disable-setuid-sandbox",
@@ -109,9 +110,8 @@ async function scrapePage(url, selector) {
   });
 
   const page = await context.newPage();
-  
+
   // Set a realistic user agent
-  
 
   // Block unnecessary resources more selectively
   await page.route("**/*", (route) => {
