@@ -64,7 +64,7 @@ async function scrapePage(url, selector) {
   const wsEndpoint = process.env.BROWSER_PLAYWRIGHT_ENDPOINT;
   console.log("Connecting to browserless...");
 
-  browser = await chromium.connect(process.env.BROWSER_PLAYWRIGHT_ENDPOINT;);
+  browser = await chromium.connect(process.env.BROWSER_PLAYWRIGHT_ENDPOINT);
   const context = await browser.newContext();
 
   // Set a realistic viewport and user agent
