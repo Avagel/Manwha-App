@@ -1,4 +1,4 @@
-const { chromium } = require("playwright");
+const { chromium } = require("playwright-core");
 const axios = require("axios");
 const cheerio = require("cheerio");
 const { MongoClient } = require("mongodb");
@@ -67,7 +67,7 @@ async function scrapePage(url, selector) {
     "/usr/bin/chromium",
     "/usr/bin/chromium-browser",
     "/usr/bin/chrome",
-    process.env.CHROME_PATH,
+    process.env.CHROMIUM_PATH,
   ];
 
   let executablePath;
@@ -490,9 +490,10 @@ exports.addToLibrary = async (req, res) => {
   }
 
   try {
-    const result = await db
-      .collection("library")
-      .updateOne({ UUID }, { $push: { manhwas: data } });
+    const result = await getCollectionn("library").updateOne(
+      { UUID },
+      { $push: { manhwas: data } }
+    );
     if (!result) {
       return res.json({ message: "No library found for this UUID" });
     }
