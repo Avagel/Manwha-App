@@ -61,30 +61,11 @@ scrapingClient.interceptors.request.use(
 );
 
 async function scrapePage(url, selector) {
-  let browser;
-  const possiblePaths = [
-    "/usr/bin/google-chrome",
-    "/usr/bin/chromium",
-    "/usr/bin/chromium-browser",
-    "/usr/bin/chrome",
-    process.env.CHROMIUM_PATH,
-  ];
-
-  let executablePath;
-  for (const path of possiblePaths) {
-    if (path) {
-      const { existsSync } = require("fs");
-      if (existsSync(path)) {
-        executablePath = path;
-        console.log(`✅ Found Chrome at: ${path}`);
-        break;
-      }
-    }
-  }
-
-  browser = await chromium.launch({
+  
+   
+  const browser = await chromium.launch({
     headless: true,
-    executablePath: executablePath,
+    executablePath: process.env.CHROMIUM_PATH || '/usr/bin/chromium',
     args: [
       "--no-sandbox",
       "--disable-setuid-sandbox",

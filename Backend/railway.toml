@@ -1,0 +1,12 @@
+[build]
+builder = "dockerfile"
+
+[deploy]
+#healthcheckPath = "/health"
+#healthcheckTimeout = 30
+
+# Optional: Add environment variables
+[env]
+NODE_ENV = "production"
+CHROMIUM_PATH = "/usr/bin/chromium"
+PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD = "1"
