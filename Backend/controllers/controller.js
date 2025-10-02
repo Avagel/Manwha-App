@@ -9,7 +9,7 @@ const { connectDB, getCollection, db } = require("../mongo");
 // let db;
 connectDB();
 const scrapingClient = axios.create({
-  timeout: 15000,
+  timeout: 20000,
   maxRedirects: 5,
   headers: {
     "User-Agent":
@@ -18,266 +18,139 @@ const scrapingClient = axios.create({
       "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7",
     "Accept-Language": "en-US,en;q=0.9",
     "Accept-Encoding": "gzip, deflate, br",
-    "Cache-Control": "no-cache",
+    "Cache-Control": "max-age=0",
     Connection: "keep-alive",
     "Upgrade-Insecure-Requests": "1",
     "Sec-Fetch-Dest": "document",
     "Sec-Fetch-Mode": "navigate",
-    "Sec-Fetch-Site": "none",
+    "Sec-Fetch-Site": "cross-site",
     "Sec-Fetch-User": "?1",
     "sec-ch-ua":
       '"Not_A Brand";v="8", "Chromium";v="120", "Google Chrome";v="120"',
     "sec-ch-ua-mobile": "?0",
     "sec-ch-ua-platform": '"Windows"',
     DNT: "1",
-    Pragma: "no-cache",
+    Referer: "https://www.google.com/",
   },
 });
 
-// Add request interceptor to log requests
+// Add request interceptor to rotate User-Agents
 scrapingClient.interceptors.request.use(
   (config) => {
     console.log(`🌐 Making request to: ${config.url}`);
+
+    // Rotate User-Agent
+    const userAgents = [
+      "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+      "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+      "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+      "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:109.0) Gecko/20100101 Firefox/121.0",
+      "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.1 Safari/605.1.15",
+    ];
+
+    const randomUserAgent =
+      userAgents[Math.floor(Math.random() * userAgents.length)];
+    config.headers["User-Agent"] = randomUserAgent;
+
     return config;
   },
   (error) => {
-    console.error("❌ Request interceptor error:", error);
-    return Promise.reject(error);
-  }
-);
-// Add response interceptor to handle errors
-scrapingClient.interceptors.response.use(
-  (response) => {
-    console.log(
-      `✅ Response received: ${response.status} from ${response.config.url}`
-    );
-    return response;
-  },
-  (error) => {
-    if (error.response) {
-      console.error(
-        `❌ Server responded with error: ${error.response.status} for ${error.config.url}`
-      );
-    } else if (error.request) {
-      console.error(`❌ No response received for: ${error.config.url}`);
-    } else {
-      console.error(`❌ Request setup error: ${error.message}`);
-    }
     return Promise.reject(error);
   }
 );
 
 async function scrapePage(url, selector) {
-  let browser;
-  try {
-    console.log(`🚀 Launching browser for: ${url}`);
+  const browser = await chromium.launch({ headless: true });
+  const page = await browser.newPage();
 
-    browser = await chromium.launch({
-      headless: true,
-      args: [
-        "--no-sandbox",
-        "--disable-setuid-sandbox",
-        "--disable-dev-shm-usage",
-        "--disable-accelerated-2d-canvas",
-        "--no-first-run",
-        "--no-zygote",
-        "--disable-gpu",
-      ],
-    });
-
-    const context = await browser.newContext();
-
-    // Set realistic viewport and user agent
-    await context.setViewportSize({ width: 1920, height: 1080 });
-    await context.setExtraHTTPHeaders({
-      "User-Agent":
-        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
-    });
-
-    const page = await context.newPage();
-
-    // Block unnecessary resources for faster loading
-    await page.route("**/*", (route) => {
-      const resourceType = route.request().resourceType();
-      // Only allow document, script, xhr, fetch, and image
-      if (["stylesheet", "font", "media", "imageset"].includes(resourceType)) {
-        route.abort();
-      } else {
-        route.continue();
-      }
-    });
-
-    console.log(`📄 Navigating to: ${url}`);
-
-    // Go to the page with better options
-    await page.goto(url, {
-      waitUntil: "domcontentloaded",
-      timeout: 30000,
-    });
-
-    // Wait for the selector with timeout
-    console.log(`⏳ Waiting for selector: ${selector}`);
-    await page.waitForSelector(selector, { timeout: 15000 });
-
-    // Additional wait for network stability
-    await page.waitForTimeout(2000);
-
-    // Get the rendered HTML
-    const content = await page.content();
-    console.log(`✅ Successfully scraped page: ${url}`);
-
-    return content;
-  } catch (error) {
-    console.error(`❌ Error scraping page ${url}:`, error.message);
-    throw error;
-  } finally {
-    if (browser) {
-      await browser.close();
-      console.log("🔌 Browser closed");
+  // Block unnecessary resources for faster load
+  await page.route("**/*", (route) => {
+    const type = route.request().resourceType();
+    if (["stylesheet", "font", "media"].includes(type)) {
+      route.abort();
+    } else {
+      route.continue();
     }
-  }
+  });
+
+  // Go to the page
+  await page.goto(url, { waitUntil: "domcontentloaded" });
+
+  // Wait for a key selector to be sure content is loaded
+  await page.waitForSelector(selector);
+
+  // Get the rendered HTML
+  const content = await page.content();
+
+  await browser.close();
+  return content;
 }
-// Enhanced scraping with fallback strategy
-async function robustScrape(url, options = {}) {
-  const { usePlaywright = false, selector = "body", maxRetries = 2 } = options;
-
-  for (let attempt = 1; attempt <= maxRetries; attempt++) {
-    try {
-      console.log(`🔍 Scraping attempt ${attempt}/${maxRetries} for: ${url}`);
-
-      if (usePlaywright || attempt > 1) {
-        // Use Playwright for JavaScript-heavy sites or as fallback
-        return await scrapePage(url, selector);
-      } else {
-        // Try axios first (faster)
-        const response = await scrapingClient.get(url);
-        return response.data;
-      }
-    } catch (error) {
-      console.error(`❌ Attempt ${attempt} failed:`, error.message);
-
-      if (attempt === maxRetries) {
-        throw error;
-      }
-      // Wait before retry
-      await new Promise((resolve) => setTimeout(resolve, 2000 * attempt));
-    }
-  }
-  
-}
-async function ensureDatabaseConnection() {
-  if (!db) {
-    console.log("🔄 Establishing database connection...");
-    const result = await connectDB();
-    if (!result.status) {
-      throw new Error("Database connection failed: " + result.message);
-    }
-  }
-  return true;
-}
-
-// Rate limiting helper
-function createRateLimiter(requestsPerMinute) {
-  const queue = [];
-  let lastRequestTime = 0;
-
-  return async (url) => {
-    const now = Date.now();
-    const timeSinceLastRequest = now - lastRequestTime;
-    const minTimeBetweenRequests = 60000 / requestsPerMinute;
-
-    if (timeSinceLastRequest < minTimeBetweenRequests) {
-      const waitTime = minTimeBetweenRequests - timeSinceLastRequest;
-      console.log(`⏳ Rate limiting: waiting ${waitTime}ms`);
-      await new Promise((resolve) => setTimeout(resolve, waitTime));
-    }
-
-    lastRequestTime = Date.now();
-    return robustScrape(url);
-  };
-}
-
-// Create rate-limited scraper (10 requests per minute)
-const rateLimitedScrape = createRateLimiter(10);
 
 exports.getLatest = async (req, response) => {
   const cached = await redisClient.get("latest");
   if (cached && JSON.parse(cached).length > 0) {
-    console.log("✅ Serving latest from cache");
     return response.json(JSON.parse(cached));
   }
 
+  // search the url and get the html
   try {
-    console.log("🔄 Fetching latest manga from Asura Comic...");
-    const html = await rateLimitedScrape("https://asuracomic.net/");
+    const res = await scrapingClient.get("https://asuracomic.net/");
+    const html = res.data;
     const $ = cheerio.load(html);
     const mangaList = [];
 
     $(".w-full.p-1").each((index, element) => {
-      const title = $(element).find("span a").contents().first().text().trim();
+      const title = $(element).find("span a").contents().first().text();
       const img = $(element).find("img").attr("src");
+
       const link = $(element).find("a").attr("href");
-
-      if (!img || !img.includes("https")) return;
-
-      mangaList.push({
-        img,
-        title,
-        link,
-        index,
-      });
+      if (img === undefined) return;
+      if (img.indexOf("https") === -1) return;
+      // console.log("Title: ", title);
+      mangaList.push({ img, title, link });
     });
+    console.log(mangaList);
 
-    console.log(`✅ Found ${mangaList.length} latest manga`);
-
-    await redisClient.setEx("latest", 3600, JSON.stringify(mangaList));
+    // await redisClient.setEx("latest", 3600, JSON.stringify(mangaList));
     response.json(mangaList);
   } catch (err) {
-    console.error("❌ Error in getLatest:", err.message);
+    console.log(err);
     return response.status(500).json({
       message: "Failed to scrape page",
-      error: err.message,
+      error: err, // only send safe info
     });
   }
 };
 
 exports.getPopular = async (req, response) => {
+  // search the url and get the html
   const cached = await redisClient.get("popular");
   if (cached) {
-    console.log("✅ Serving popular from cache");
     return response.json(JSON.parse(cached));
   }
-
   try {
-    console.log("🔄 Fetching popular manga from Asura Comic...");
-    const html = await rateLimitedScrape("https://asuracomic.net/");
+    const res = await scrapingClient.get("https://asuracomic.net/");
+    const html = res.data;
     const $ = cheerio.load(html);
     const mangaList = [];
 
     $(".flex.py-3").each((index, element) => {
-      const title = $(element).find("span a").contents().first().text().trim();
+      const title = $(element).find("span a").contents().first().text();
       const img = $(element).find("img").attr("src");
       const link = $(element).find("a").attr("href");
-
-      if (!img || !img.includes("https")) return;
-
-      mangaList.push({
-        img,
-        title,
-        link,
-        index,
-      });
+      if (img === undefined) return;
+      if (img.indexOf("https") === -1) return;
+      // console.log("Title: ", title);
+      mangaList.push({ img, title, link });
     });
-
-    console.log(`✅ Found ${mangaList.length} popular manga`);
-
+    console.log(mangaList);
     await redisClient.setEx("popular", 3600, JSON.stringify(mangaList));
+
     response.json(mangaList);
   } catch (err) {
-    console.error("❌ Error in getPopular:", err.message);
     return response.status(500).json({
       message: "Failed to scrape page",
-      error: err.message,
+      error: err, // only send safe info
     });
   }
 };
@@ -285,121 +158,92 @@ exports.getPopular = async (req, response) => {
 exports.getFilter = async (req, response) => {
   const { genre, status, type, order } = req.body;
 
-  // Create a unique cache key based on filters
-  const cacheKey = `filter:${genre}:${status}:${type}:${order}`;
-  const cached = await redisClient.get(cacheKey);
-
-  if (cached && JSON.parse(cached).length > 0) {
-    console.log("✅ Serving filter results from cache");
-    return response.json(JSON.parse(cached));
-  }
-
+  const cached = await redisClient.get("filter");
+  // if (cached && JSON.parse(cached).length > 0) {
+  //   console.log("Cached",JSON.parse(cached))
+  //   return response.json(JSON.parse(cached));
+  // }
+  // search the url and get the html
   const mangaList = [];
   let pg = 1;
-  let hasMorePages = true;
-  const maxPages = 5; // Limit pages to avoid infinite loops
-
-  try {
-    while (hasMorePages && pg <= maxPages) {
-      console.log(`📄 Scraping filter page ${pg}...`);
-
-      const html = await rateLimitedScrape(
-        `https://asuracomic.net/series?page=${pg}&genres=${
-          genre || ""
-        }&status=${status || ""}&types=${type || ""}&order=${order || ""}`
+  while (true) {
+    try {
+      const res = await scrapingClient.get(
+        `https://asuracomic.net/series?page=${pg}&genres=${genre}&status=${status}&types=${type}&order=${order}`
       );
-
+      console.log("viewing page " + pg);
+      const html = res.data;
       const $ = cheerio.load(html);
-      let foundItems = false;
+      let found = false;
 
       $("a").each((index, element) => {
-        const title = $(element).find("span.block").text().trim();
+        const title = $(element).find("span.block").text();
         const img = $(element).find("img").attr("src");
         const link = $(element).attr("href");
-
-        if (!img || !img.includes("https")) return;
-        if (!link || !link.startsWith("series/")) return;
-
-        // Avoid duplicates
-        const exists = mangaList.some((item) => item.link === link);
-        if (!exists) {
+        if (img === undefined) return;
+        if (img.indexOf("https") === -1) return;
+        // console.log("Title: ", title);
+        if (link && link.startsWith("series/")) {
           mangaList.push({ img, title, link });
-          foundItems = true;
+          found = true;
+          // filter only the ones you need (so you don't get menu/footer links)
         }
       });
+      if (found == false) break;
 
-      if (!foundItems) {
-        hasMorePages = false;
-        console.log(`⏹️ No more items found on page ${pg}, stopping.`);
-      } else {
-        console.log(`✅ Found ${mangaList.length} items so far...`);
-        pg++;
+      await redisClient.setEx("filter", 3600, JSON.stringify(mangaList));
 
-        // Be respectful - wait between pages
-        await new Promise((resolve) => setTimeout(resolve, 1000));
-      }
+      pg++;
+    } catch (err) {
+      return response.status(500).json({
+        message: "Failed to scrape page",
+        error: err, // only send safe info
+      });
     }
-
-    console.log(`✅ Filter search completed: ${mangaList.length} total items`);
-
-    await redisClient.setEx(cacheKey, 3600, JSON.stringify(mangaList));
-    response.json(mangaList);
-  } catch (err) {
-    console.error("❌ Error in getFilter:", err.message);
-    return response.status(500).json({
-      message: "Failed to scrape page",
-      error: err.message,
-    });
   }
-};
 
+  response.json(mangaList);
+};
 exports.getSearch = async (req, response) => {
   const { search } = req.body;
-  console.log(`🔍 Searching for: ${search}`);
-
-  const cacheKey = `search:${search}`;
-  const cached = await redisClient.get(cacheKey);
-
+  console.log("searching", search);
+  const cached = await redisClient.get(search);
   if (cached && JSON.parse(cached).length > 0) {
-    console.log("✅ Serving search from cache");
+    console.log("Cached", JSON.parse(cached));
     return response.json(JSON.parse(cached));
   }
-
+  // search the url and get the html
   const mangaList = [];
 
   try {
-    const html = await rateLimitedScrape(
-      `https://asuracomic.net/series?page=1&name=${encodeURIComponent(search)}`
+    const res = await scrapingClient.get(
+      `https://asuracomic.net/series?page=1&name=${search}`
     );
-
+    const html = res.data;
     const $ = cheerio.load(html);
 
     $("a").each((index, element) => {
-      const title = $(element).find("span.block").text().trim();
+      const title = $(element).find("span.block").text();
       const img = $(element).find("img").attr("src");
       const link = $(element).attr("href");
-
-      if (!img || !img.includes("https")) return;
-      if (!link || !link.startsWith("series/")) return;
-
-      // Avoid duplicates
-      const exists = mangaList.some((item) => item.link === link);
-      if (!exists) {
+      if (img === undefined) return;
+      if (img.indexOf("https") === -1) return;
+      // console.log("Title: ", title);
+      if (link && link.startsWith("series/")) {
         mangaList.push({ img, title, link });
+        // filter only the ones you need (so you don't get menu/footer links)
       }
     });
 
-    console.log(`✅ Search found ${mangaList.length} results for "${search}"`);
-
-    await redisClient.setEx(cacheKey, 3600, JSON.stringify(mangaList));
-    response.json(mangaList);
+    await redisClient.setEx(search, 3600, JSON.stringify(mangaList));
   } catch (err) {
-    console.error("❌ Error in getSearch:", err.message);
+    console.log("error", err);
     return response.status(500).json({
       message: "Failed to scrape page",
-      error: err.message,
+      error: err, // only send safe info
     });
   }
+  response.json(mangaList);
 };
 
 exports.getManwhaDetails = async (req, response) => {
@@ -496,9 +340,14 @@ exports.getManhwaPages = async (req, response) => {
 };
 exports.addUser = async (req, res) => {
   const { UUID } = req.body;
+  if (!db) {
+    const isConnected = await connectDB();
+    if (!isConnected) {
+      return res.json({ error: "Database connection failed" });
+    }
+  }
 
   try {
-    await ensureDatabaseConnection();
     await getCollection("users").insertOne({ UUID });
     await getCollection("library").insertOne({ UUID, manhwas: [] });
     await getCollection("history").insertOne({ UUID, history: [] });
@@ -510,9 +359,14 @@ exports.addUser = async (req, res) => {
 };
 exports.checkUser = async (req, res) => {
   const { UUID } = req.body;
+  if (!db) {
+    const isConnected = await connectDB();
+    if (!isConnected) {
+      return res.json({ error: "Database connection failed" });
+    }
+  }
 
   try {
-    await ensureDatabaseConnection();
     const result = await getCollection("users").findOne({ UUID });
     if (!result) {
       return res.json({ message: "No User found for this UUID" });
@@ -526,8 +380,14 @@ exports.checkUser = async (req, res) => {
 exports.addToLibrary = async (req, res) => {
   const { UUID, data } = req.body;
 
+  if (!db) {
+    const isConnected = await connectDB();
+    if (!isConnected) {
+      return res.json({ error: "Database connection failed" });
+    }
+  }
+
   try {
-    await ensureDatabaseConnection();
     const result = await db
       .collection("library")
       .updateOne({ UUID }, { $push: { manhwas: data } });
@@ -544,8 +404,14 @@ exports.addToHistory = async (req, res) => {
   const { UUID, data } = req.body;
   let result;
 
+  if (!db) {
+    const isConnected = await connectDB();
+    if (!isConnected) {
+      return res.json({ error: "Database connection failed" });
+    }
+  }
+
   try {
-    await ensureDatabaseConnection();
     const collection = getCollection("history");
 
     // First check if the link already exists
@@ -577,10 +443,17 @@ exports.addToHistory = async (req, res) => {
 
 exports.fetchLibrary = async (req, res) => {
   const { UUID } = req.body;
+  console.log(UUID);
+
+  if (!db) {
+    const isConnected = await connectDB();
+    if (!isConnected) {
+      return res.json({ error: "Database connection failed" });
+    }
+  }
 
   // fetch the user’s library by UUID
   try {
-    await ensureDatabaseConnection();
     const result = await getCollection("library").findOne(
       { UUID },
       { projection: { manhwas: 1, _id: 0 } } // only return "manhwas" field
@@ -601,9 +474,15 @@ exports.fetchHistory = async (req, res) => {
   const { UUID } = req.body;
   console.log(UUID);
 
+  if (!db) {
+    const isConnected = await connectDB();
+    if (!isConnected) {
+      return res.json({ error: "Database connection failed" });
+    }
+  }
+
   // fetch the user’s library by UUID
   try {
-    await ensureDatabaseConnection();
     const result = await getCollection("history").findOne({ UUID });
     console.log("fetch history result: ", result);
 
@@ -623,8 +502,14 @@ exports.removeFromLibrary = async (req, res) => {
   console.log(UUID);
   console.log(link);
 
+  if (!db) {
+    const isConnected = await connectDB();
+    if (!isConnected) {
+      return res.json({ error: "Database connection failed" });
+    }
+  }
+
   try {
-    await ensureDatabaseConnection();
     const check = await getCollection("library").findOne({ UUID });
     console.log("checkk", check);
     const result = await getCollection("library").updateOne(
@@ -645,8 +530,14 @@ exports.removeFromHistory = async (req, res) => {
   console.log(UUID);
   console.log(link);
 
+  if (!db) {
+    const isConnected = await connectDB();
+    if (!isConnected) {
+      return res.json({ error: "Database connection failed" });
+    }
+  }
+
   try {
-    await ensureDatabaseConnection();
     const check = await getCollection("history").findOne({ UUID });
     console.log("checkk", check);
     const result = await getCollection("history").updateOne(
