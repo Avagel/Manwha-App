@@ -9,36 +9,33 @@ import sadtear from "../assets/sadtear.svg";
 import { DiscoverFilter } from "../components/DiscoverFilter";
 
 export const DiscoverPage = ({
-  latest,
+  latest = [], // Default value
   setLatest,
-  popular,
+  popular = [], // Default value
   setPopular,
   setManwhaData,
   current,
   setCurrent,
-  filter,
+  filter = [], // Default value
   setFilter,
 }) => {
-  
   const [error, setError] = useState(null);
-
   const [filterOpen, setFilterOpen] = useState(false);
   const [loading, setLoading] = useState(false);
-  const[search,setSearch] = useState("");
-  const API_URL = import.meta.env.NEXT_PUBLIC_API_URL;
+  const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000"; // Use VITE_ prefix for Vite
 
-  const data = current == "latest" ? latest : popular;
-  const dummy = [5, 5, 5, 5, 5, 5];
+  // Safe data selection with defaults
+  const data = current === "latest" ? latest || [] : popular || [];
+  const dummy = Array(6).fill(null); // Better dummy array
 
   useEffect(() => {
-    if (popular.length) return;
-    else {
+    if (!popular?.length) {
       fetchPopular();
     }
   }, []);
+
   useEffect(() => {
-    if (latest.length) return;
-    else {
+    if (!latest?.length) {
       fetchLatest();
     }
   }, []);
@@ -46,22 +43,25 @@ export const DiscoverPage = ({
   const fetchPopular = async () => {
     try {
       const res = await axios.get(`${API_URL}/manhwa/popular`);
-      const result = res.data;
-      setPopular(result);
+      setPopular(res.data || []); // Ensure array
     } catch (error) {
-      setError(error);
+      console.error("Fetch popular error:", error);
+      setError(error.message);
+      setPopular([]); // Set empty array on error
     }
   };
+
   const fetchLatest = async () => {
     try {
       const res = await axios.get(`${API_URL}/manhwa/latest`);
-      const result = res.data;
-      console.log(result);
-      setLatest(result);
+      setLatest(res.data || []); // Ensure array
     } catch (error) {
-      setError(error);
+      console.error("Fetch latest error:", error);
+      setError(error.message);
+      setLatest([]); // Set empty array on error
     }
   };
+
   const handleFilter = async (selectedFilters) => {
     setCurrent("filter");
     setFilterOpen(false);
@@ -69,7 +69,7 @@ export const DiscoverPage = ({
 
     let [genres, type, status, order] = selectedFilters;
 
-    if (genres.length == 0) {
+    if (!genres?.length) {
       genres = "0";
     } else {
       genres = genres.join("%2C");
@@ -78,14 +78,21 @@ export const DiscoverPage = ({
     switch (order) {
       case "Last Updated":
         order = "update";
+        break;
       case "Rating":
         order = "rating";
+        break;
       case "Bookmark Count":
         order = "bookmarks";
+        break;
       case "Name (Z-A)":
         order = "desc";
+        break;
       case "Name (A-Z)":
         order = "asc";
+        break;
+      default:
+        order = "update";
     }
 
     try {
@@ -95,76 +102,103 @@ export const DiscoverPage = ({
         status,
         order,
       });
-      const result = res.data;
-      console.log(result);
-
-      setLoading(false);
-      setFilter(result);
+      setFilter(res.data || []); // Ensure array
     } catch (error) {
-      console.log(error);
-      setError(error);
-    }
-
-    console.log([genres, type, status, order]);
-  };
-  const handleSearch = async (search) => {
-    setLoading(true);
-    setCurrent("filter");
-    try {
-      const res = await axios.post(`${API_URL}/manhwa/search`,{search});
-      const result = res.data;
-      setFilter(result);
-    } catch (error) {
-      setError(error);
+      console.error("Filter error:", error);
+      setError(error.message);
+      setFilter([]); // Set empty array on error
     } finally {
       setLoading(false);
     }
   };
 
+  const handleSearch = async (search) => {
+    setLoading(true);
+    setCurrent("filter");
+    try {
+      const res = await axios.post(`${API_URL}/manhwa/search`, { search });
+      setFilter(res.data || []); // Ensure array
+    } catch (error) {
+      console.error("Search error:", error);
+      setError(error.message);
+      setFilter([]); // Set empty array on error
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Safe rendering functions
+  const renderFilterContent = () => {
+    if (loading) return <Loader />;
+
+    if (!filter?.length) {
+      return (
+        <div className="none">
+          <img src={sadtear} alt="No results" />
+          <p>No Manhwa Found</p>
+        </div>
+      );
+    }
+
+    return filter.map((item, index) => (
+      <ManwhaCard
+        key={item?.link || item?.title || `filter-${index}`}
+        data={item}
+      />
+    ));
+  };
+
+  const renderMainContent = () => {
+    if (!data?.length) {
+      return dummy.map((_, index) => <LoadingCard key={`loading-${index}`} />);
+    }
+
+    return data.map((item, index) => (
+      <ManwhaCard
+        key={item?.link || item?.title || `data-${index}`}
+        data={item}
+      />
+    ));
+  };
+
   return (
     <div className="discover-page page">
-      <Header  
-      setSearch={setSearch}
+      <Header
+        setSearch={setSearch}
         val={"Discover"}
         handleSearch={handleSearch}
       />
 
       <div className="discover-nav">
         <button
-          className={current == "latest" ? "active" : ""}
-          onClick={() => {
-            setCurrent("latest");
-          }}
+          className={current === "latest" ? "active" : ""}
+          onClick={() => setCurrent("latest")}
         >
           Latest
         </button>
         <button
-          className={current == "popular" ? "active" : ""}
-          onClick={() => {
-            setCurrent("popular");
-          }}
+          className={current === "popular" ? "active" : ""}
+          onClick={() => setCurrent("popular")}
         >
           Popular
         </button>
         <button
-          onClick={() => {
-            setFilterOpen((prev) => !prev);
-          }}
-          className={current == "filter" ? "active" : ""}
+          onClick={() => setFilterOpen((prev) => !prev)}
+          className={current === "filter" ? "active" : ""}
         >
           Filter
         </button>
       </div>
-      {filterOpen ? <DiscoverFilter handleFilter={handleFilter} /> : ""}
+
+      {filterOpen && <DiscoverFilter handleFilter={handleFilter} />}
 
       {error ? (
         <div className="error">
-          {" "}
           <div className="none">
-            <img src={sadtear} alt="" />
+            <img src={sadtear} alt="Error" />
             <p>
               No internet connection{" "}
-              <NavLink onClick={() => setRefreshKey((old) => old + 1)}>
+              <NavLink onClick={() => window.location.reload()}>
                 Refresh
               </NavLink>
             </p>
@@ -172,37 +206,9 @@ export const DiscoverPage = ({
         </div>
       ) : (
         <div className="container">
-          {current == "filter" ? (
-            loading ? (
-              <Loader />
-            ) : filter.length == 0 ? (
-              <div className="none">
-                <img src={sadtear} alt="" />
-                <p>No Manhwa Found</p>
-              </div>
-            ) : (
-              filter.map((data, index) => {
-                const { title } = data;
-                return <ManwhaCard key={index} data={data} />;
-              })
-            )
-          ) : data.length > 0 ? (
-            data.map((data, index) => {
-              const { title } = data;
-
-              
-              return <ManwhaCard key={index} data={data} />;
-            })
-          ) : (
-            dummy.map((data, index) => {
-              return <LoadingCard key={index} />;
-            })
-          )}
+          {current === "filter" ? renderFilterContent() : renderMainContent()}
         </div>
       )}
     </div>
   );
 };
-/*
-  genre status typr order
-*/
