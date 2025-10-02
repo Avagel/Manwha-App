@@ -16,7 +16,6 @@ RUN apt-get update && \
     libasound2 \
     fonts-liberation \
     libcurl4 \
-    xvfb \
     && rm -rf /var/lib/apt/lists/*
 
 # Set environment variables to use system Chromium
@@ -31,10 +30,6 @@ RUN npm install
 
 # Copy source code
 COPY . .
-
-# Create non-root user (optional but recommended)
-RUN useradd -m -u 1000 playwrightuser
-USER playwrightuser
 
 EXPOSE 3000
 CMD ["node", "server.js"]
