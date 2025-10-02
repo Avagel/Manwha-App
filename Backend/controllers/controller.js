@@ -313,8 +313,9 @@ exports.getManwhaDetails = async (req, response) => {
 
 exports.getManhwaPages = async (req, response) => {
   const { link } = req.body;
+  console.log("fetching", link);
   const cached = await redisClient.get(link);
-  if (cached) {
+  if (cached && cached.length > 0) {
     return response.json(JSON.parse(cached));
   }
 
