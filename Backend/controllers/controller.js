@@ -159,11 +159,11 @@ async function robustScrape(url, options = {}) {
       if (attempt === maxRetries) {
         throw error;
       }
-
       // Wait before retry
       await new Promise((resolve) => setTimeout(resolve, 2000 * attempt));
     }
   }
+  
 }
 async function ensureDatabaseConnection() {
   if (!db) {
