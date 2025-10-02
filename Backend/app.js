@@ -24,6 +24,7 @@ const port = process.env.PORT;
 app.use(cors());
 app.use(express.json());
 
+
 app.get("/manhwa/latest", getLatest);
 app.get("/manhwa/popular", getPopular);
 app.post("/manhwa/details", getManwhaDetails);
