@@ -22,6 +22,7 @@ export const DiscoverPage = ({
   const [error, setError] = useState(null);
   const [filterOpen, setFilterOpen] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [search, setSearch] = useState("");
   const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000"; // Use VITE_ prefix for Vite
 
   // Safe data selection with defaults
