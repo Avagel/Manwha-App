@@ -65,7 +65,6 @@ async function scrapePage(url, selector) {
    
   const browser = await chromium.launch({
     headless: true,
-    executablePath: process.env.CHROMIUM_PATH || '/usr/bin/chromium',
     args: [
       "--no-sandbox",
       "--disable-setuid-sandbox",
