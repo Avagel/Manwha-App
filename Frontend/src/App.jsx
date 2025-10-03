@@ -74,9 +74,15 @@ function App() {
             <Route
               index
               element={
-                <LibraryPage
-                  libraryData={libraryData}
-                  setLibraryData={setLibraryData}
+                <DiscoverPage
+                  latest={latest}
+                  setLatest={setLatest}
+                  popular={popular}
+                  setPopular={setPopular}
+                  current={current}
+                  setCurrent={setCurrent}
+                  filter={filter}
+                  setFilter={setFilter}
                 />
               }
             />
@@ -86,6 +92,15 @@ function App() {
                 <HistoryPage
                   historyData={historyData}
                   setHistoryData={setHistoryData}
+                />
+              }
+            />
+            <Route
+              path="library"
+              element={
+                <LibraryPage
+                  libraryData={libraryData}
+                  setLibraryData={setLibraryData}
                 />
               }
             />
