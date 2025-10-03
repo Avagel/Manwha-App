@@ -38,6 +38,7 @@ function App() {
       const check = historyData.filter(
         (manhw) => manhw.manhwaName == data.manhwaName
       );
+
       if (check.length > 0) {
         setHistoryData((prev) => {
           return prev.filter((manhw) => manhw.manhwaName !== data.manhwaName);
@@ -49,6 +50,7 @@ function App() {
       setHistoryData((prev) => {
         return [...prev, data];
       });
+      
     } catch (error) {
       // setError(error);
       console.error(error);

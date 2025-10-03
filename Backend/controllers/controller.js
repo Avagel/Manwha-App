@@ -170,10 +170,9 @@ exports.getLatest = async (req, response) => {
       const link = $(element).find("a").attr("href");
       if (img === undefined) return;
       if (img.indexOf("https") === -1) return;
-      // console.log("Title: ", title);
       mangaList.push({ img, title, link });
     });
-    console.log(mangaList);
+    console.log("Found " + mangaList.length + " manga");
 
     // await redisClient.setEx("latest", 3600, JSON.stringify(mangaList));
     response.json(mangaList);
@@ -207,7 +206,7 @@ exports.getPopular = async (req, response) => {
       // console.log("Title: ", title);
       mangaList.push({ img, title, link });
     });
-    console.log(mangaList);
+    
     await redisClient.setEx("popular", 3600, JSON.stringify(mangaList));
 
     response.json(mangaList);
@@ -480,7 +479,6 @@ exports.addToHistory = async (req, res) => {
 
   try {
     const collection = getCollection("history");
-
     // First check if the link already exists
     const existing = await collection.findOne({
       UUID,
@@ -525,7 +523,7 @@ exports.fetchLibrary = async (req, res) => {
       { UUID },
       { projection: { manhwas: 1, _id: 0 } } // only return "manhwas" field
     );
-    console.log("fetch library result: ", result);
+    // console.log("fetch library result: ", result);
 
     if (!result) {
       return res.json({ message: "No library found for this UUID" });
@@ -539,7 +537,7 @@ exports.fetchLibrary = async (req, res) => {
 };
 exports.fetchHistory = async (req, res) => {
   const { UUID } = req.body;
-  console.log(UUID);
+  console.log("Fetching history...",UUID);
 
   if (!db) {
     const isConnected = await connectDB();
@@ -551,7 +549,7 @@ exports.fetchHistory = async (req, res) => {
   // fetch the user’s library by UUID
   try {
     const result = await getCollection("history").findOne({ UUID });
-    console.log("fetch history result: ", result);
+    // console.log("fetch history result: ", result);
 
     if (!result) {
       return res.json({ message: "No history found for this UUID" });
@@ -566,8 +564,7 @@ exports.fetchHistory = async (req, res) => {
 
 exports.removeFromLibrary = async (req, res) => {
   const { UUID, link } = req.body;
-  console.log(UUID);
-  console.log(link);
+  console.log("removing from library... " + UUID)
 
   if (!db) {
     const isConnected = await connectDB();
@@ -578,7 +575,8 @@ exports.removeFromLibrary = async (req, res) => {
 
   try {
     const check = await getCollection("library").findOne({ UUID });
-    console.log("checkk", check);
+    console.log("checking for... ", check);
+
     const result = await getCollection("library").updateOne(
       { UUID: UUID }, // user's library
       { $pull: { manhwas: { link: link } } }
@@ -594,8 +592,7 @@ exports.removeFromLibrary = async (req, res) => {
 };
 exports.removeFromHistory = async (req, res) => {
   const { UUID, link } = req.body;
-  console.log(UUID);
-  console.log(link);
+  console.log("removing from library...",link,UUID)
 
   if (!db) {
     const isConnected = await connectDB();
@@ -606,7 +603,8 @@ exports.removeFromHistory = async (req, res) => {
 
   try {
     const check = await getCollection("history").findOne({ UUID });
-    console.log("checkk", check);
+    
+
     const result = await getCollection("history").updateOne(
       { UUID: UUID }, // user's library
       { $pull: { history: { link: link } } }

@@ -26,10 +26,8 @@ export const HistoryPage = ({ historyData, setHistoryData }) => {
 
   const fetchHistory = async () => {
     const uuid = localStorage.getItem("manhwaUUID");
-    console.log(uuid);
-
-    // example: "550e8400-e29b-41d4-a716-446655440000"
-
+    console.log("fetching history...");
+    
     try {
       const res = await axios.post(`${API_URL}/history/fetch`, {
         UUID: uuid,

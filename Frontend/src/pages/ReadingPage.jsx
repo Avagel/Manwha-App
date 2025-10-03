@@ -47,7 +47,9 @@ export const ReadingPage = ({ addToHistory }) => {
     data.date = new Date().toLocaleTimeString();
     data.title = "Chapter " + chapterId;
 
+    console.log("adding to history...");
     addToHistory(data);
+
     const controller = new AbortController();
     setShowControls(true);
     if (!images) {
@@ -148,9 +150,13 @@ export const ReadingPage = ({ addToHistory }) => {
           </div>
         ) || String(error)
       ) : images ? (
-        images.map((img, index) => {
-          return <img key={index} src={img} alt="" onClick={handleTap} />;
-        })
+        images.length == 0 ? (
+          "Images Not found"
+        ) : (
+          images.map((img, index) => {
+            return <img key={index} src={img} alt="" onClick={handleTap} />;
+          })
+        )
       ) : (
         <>
           {" "}
