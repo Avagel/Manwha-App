@@ -7,6 +7,8 @@ import { LoadingCard } from "../components/LoadingCard";
 import { LoadingCardOver } from "../components/LoadingCardOver";
 import sadtear from "../assets/sadtear.svg";
 import axios from "axios";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faArrowUpShortWide, faArrowUpWideShort } from "@fortawesome/free-solid-svg-icons";
 
 export const OverviewPage = ({ setHistoryData }) => {
   const location = useLocation();
@@ -17,6 +19,7 @@ export const OverviewPage = ({ setHistoryData }) => {
   const [manhwaData, setManhwaData] = useState({ ...data });
   // const [refreshKey, setRefreshKey] = useState(0);
   const [error, setError] = useState(null);
+  const [isReverse, setIsReverse] = useState(false);
 
   useEffect(() => {
     if (manhwaData.summary) return;
@@ -42,10 +45,14 @@ export const OverviewPage = ({ setHistoryData }) => {
       setError(error);
     }
   };
-  const { title, img, genres, chapters, summary, link, rating } = manhwaData;
+  let { title, img, genres, chapters, summary, link, rating } = manhwaData;
   console.log(link);
   if (chapters)
     localStorage.setItem("allChapters" + title, JSON.stringify(chapters));
+  const handleSort = () => {
+    chapters = chapters.reverse();
+    setIsReverse((prev) => !prev);
+  }
 
   return (
     <>
@@ -76,7 +83,10 @@ export const OverviewPage = ({ setHistoryData }) => {
                 return <GenreCard genre={gen} />;
               })}
             </div>
+            <div className="sort">
             <p className="chap-count">{chapters.length} Chapters</p>
+            <FontAwesomeIcon icon={isReverse ?faArrowUpWideShort:faArrowUpShortWide} onClick={handleSort}/>
+            </div>
             <div className="chapters">
               {chapters.map((data, index) => {
                 data.img = img;

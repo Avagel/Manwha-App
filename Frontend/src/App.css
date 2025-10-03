@@ -400,6 +400,13 @@ nav {
     margin: 0;
   }
 }
+.overview-page .sort {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin: 20px 0 10px 0;
+
+}
 
 .overview-page .genres {
   display: flex;
