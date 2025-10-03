@@ -395,17 +395,35 @@ nav {
     margin: 0;
     font-weight: 600;
   }
-  .summary {
-    font-size: 10px;
-    margin: 0;
-  }
 }
+.overview-page .container .summary {
+  font-size: 10px;
+  margin: 0;
+  overflow: auto;
+  color: #9a989c;
+}
+.overview-page .container .summary::-webkit-scrollbar {
+  width: 8px;
+}
+
+.overview-page .container .summary::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.overview-page .container .summary::-webkit-scrollbar-thumb {
+  background: #141212;
+  border-radius: 10px;
+}
+
+.overview-page .container .summary::-webkit-scrollbar-thumb:hover {
+  background: #1412129d;
+}
+
 .overview-page .sort {
   display: flex;
   justify-content: space-between;
   align-items: center;
   margin: 20px 0 10px 0;
-
 }
 
 .overview-page .genres {

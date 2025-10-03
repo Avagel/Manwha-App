@@ -34,11 +34,13 @@ export const OverviewPage = ({ setHistoryData }) => {
 
   //fetch data
   const fetchOtherData = async () => {
+    console.log("fetching other data...");
     try {
       const res = await axios.post(`${API_URL}/manhwa/details`, {
         link: data.link,
       });
       const result = res.data;
+      console.log("result: ", result);
 
       setManhwaData((prev) => {
         return {
@@ -51,7 +53,8 @@ export const OverviewPage = ({ setHistoryData }) => {
       setError(error);
     }
   };
-  let { title, img, genres, chapters, summary, link, rating } = manhwaData;
+  let { title, img, genres, chapters, summary, manhwaName, link, rating } =
+    manhwaData;
   if (chapters)
     localStorage.setItem("allChapters" + title, JSON.stringify(chapters));
   const handleSort = () => {
@@ -78,8 +81,8 @@ export const OverviewPage = ({ setHistoryData }) => {
             <div className="desc">
               <img src={img} alt="pic" />
               <div className="group">
-                <p className="name"> {title}</p>
-                <p className="summary">{summary}</p>
+                <p className="name"> {manhwaName}</p>
+                <p className="summary">{summary || "No Summary"}</p>
               </div>
             </div>
 

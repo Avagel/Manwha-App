@@ -345,6 +345,12 @@ exports.getManwhaDetails = async (req, response) => {
     let chapters = [];
     //{name,date,link}
     //data = {summary,rating,genres:[],chapters:[]}
+    //get manwhaName
+    $("span.text-xl.font-bold").each((index, element) => {
+      const manhwaName = $(element).text();
+      data.manhwaName = manhwaName;
+      console.log("manhwaName", manhwaName);
+    });
 
     //get the summary
     $("span.font-medium.text-sm").each((index, element) => {
