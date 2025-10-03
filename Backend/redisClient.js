@@ -1,4 +1,4 @@
-
+// redisClient.js
 const { createClient } = require("redis");
 
 let redisClient = null;
@@ -72,4 +72,4 @@ const redisClientPromise = initializeRedis().catch((err) => {
 
 // Safe Redis functions that work even if Redis is unavailable
 
-module.exports = { redisClient };
+module.exports = { redisClientPromise };

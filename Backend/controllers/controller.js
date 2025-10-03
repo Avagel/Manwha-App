@@ -2,12 +2,13 @@ const { chromium } = require("playwright");
 const axios = require("axios");
 const cheerio = require("cheerio");
 const { MongoClient } = require("mongodb");
-const { redisClient } = require("../redisClient");
+const { redisClientPromise } = require("../redisClient");
 require("dotenv").config();
 const { connectDB, getCollection, db, dropAllIndexes } = require("../mongo");
 
 // let db;
 connectDB();
+const redisClient = await redisClientPromise;
 
 const scrapingClient = axios.create({
   timeout: 20000,
