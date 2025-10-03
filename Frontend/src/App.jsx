@@ -12,6 +12,7 @@ import { ReadingPage } from "./pages/ReadingPage";
 import { HistoryPage } from "./pages/HistoryPage";
 import { reducer } from "./Reducer";
 import axios from "axios";
+import { NotFound } from "./pages/NotFound";
 
 function App() {
   const [currentPage, setCurrentPage] = useState(<LibraryPage />);
@@ -128,6 +129,7 @@ function App() {
               element={<ReadingPage addToHistory={addToHistory} />}
             />
           </Route>
+          <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>
     </>
