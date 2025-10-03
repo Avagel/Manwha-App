@@ -6,6 +6,7 @@ const { redisClientPromise } = require("../redisClient");
 require("dotenv").config();
 const { connectDB, getCollection, db, dropAllIndexes } = require("../mongo");
 let redisClient;
+const API_URL = process.env.API_URL;
 // let db;
 connectDB();
 
