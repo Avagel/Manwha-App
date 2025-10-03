@@ -1,5 +1,5 @@
 import { GenreCard } from "../components/GenreCard";
-import { ChapterCard } from "../components/ChapterCard";
+import  ChapterCard  from "../components/ChapterCard";
 
 export const LoadingCardOver = () => {
     const dummy = [5,5,5,5,5,5];

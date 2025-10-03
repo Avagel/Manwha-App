@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router";
 
-export const ChapterCard = ({ data, setHistoryData }) => {
+export default function ChapterCard({ data, setHistoryData }){
   const navigate = useNavigate();
   const { title, link, date, img } = data;
   const [error, setError] = useState(null);

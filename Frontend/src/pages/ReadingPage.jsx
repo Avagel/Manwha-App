@@ -154,7 +154,7 @@ export const ReadingPage = ({ addToHistory }) => {
           setError("Images Not found")
         ) : (
           images.map((img, index) => {
-            return <img key={index} src={img} alt="" onClick={handleTap} />;
+            return <img key={index} src={img} alt="" onClick={handleTap} loading="lazy"/>;
           })
         )
       ) : (
