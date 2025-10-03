@@ -152,8 +152,9 @@ async function scrapePage(url, selector) {
 
 exports.getLatest = async (req, response) => {
   if (!redisClient) redisClient = await redisClientPromise;
+  let cached;
+  if (redisClient) cached = await redisClient.get("latest");
 
-  const cached = await redisClient.get("latest");
   if (cached && JSON.parse(cached).length > 0) {
     return response.json(JSON.parse(cached));
   }
@@ -190,7 +191,9 @@ exports.getLatest = async (req, response) => {
 exports.getPopular = async (req, response) => {
   // search the url and get the html
   if (!redisClient) redisClient = await redisClientPromise;
-  const cached = await redisClient.get("popular");
+  let cached;
+  if (redisClient) cached = await redisClient.get("popular");
+
   if (cached && JSON.parse(cached).length > 0) {
     return response.json(JSON.parse(cached));
   }
@@ -224,10 +227,10 @@ exports.getPopular = async (req, response) => {
 exports.getFilter = async (req, response) => {
   const { genre, status, type, order } = req.body;
 
-  if (cached && JSON.parse(cached).length > 0) {
-    return response.json(JSON.parse(cached));
-  }
   if (!redisClient) redisClient = await redisClientPromise;
+  let cached;
+  if (redisClient)
+    cached = await redisClient.get("filter" + genre + status + type + order);
 
   if (cached && JSON.parse(cached).length > 0) {
     console.log("Cached", JSON.parse(cached));
@@ -265,6 +268,7 @@ exports.getFilter = async (req, response) => {
 
       pg++;
     } catch (err) {
+      console.log(err);
       return response.status(500).json({
         message: "Failed to scrape page",
         error: err, // only send safe info
@@ -278,7 +282,9 @@ exports.getSearch = async (req, response) => {
   const { search } = req.body;
   console.log("searching", search);
   if (!redisClient) redisClient = await redisClientPromise;
-  const cached = await redisClient.get(search);
+  let cached;
+  if (redisClient) cached = await redisClient.get(search);
+
   if (cached && JSON.parse(cached).length > 0) {
     console.log("Cached", JSON.parse(cached));
     return response.json(JSON.parse(cached));
@@ -320,8 +326,10 @@ exports.getSearch = async (req, response) => {
 exports.getManwhaDetails = async (req, response) => {
   const { link } = req.body;
   //get the the chapter count and rating
+  let cached;
   if (!redisClient) redisClient = await redisClientPromise;
-  const cached = await redisClient.get(link);
+  if (redisClient) cached = await redisClient.get(link);
+
   if (cached && JSON.parse(cached).length > 0) {
     return response.json(JSON.parse(cached));
   }
@@ -384,8 +392,10 @@ exports.getManwhaDetails = async (req, response) => {
 exports.getManhwaPages = async (req, response) => {
   const { link } = req.body;
   console.log("fetching", link);
+  let cached;
   if (!redisClient) redisClient = await redisClientPromise;
-  const cached = await redisClient.get(link);
+  if (redisClient) cached = await redisClient.get(link);
+
   if (cached && cached.length > 0) {
     return response.json(JSON.parse(cached));
   }

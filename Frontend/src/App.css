@@ -367,7 +367,6 @@ nav {
 
 .overview-page .container {
   padding-top: 60px;
-  
 
   .desc {
     display: flex;
@@ -654,7 +653,7 @@ p.chap-count {
     transition: 0.3s all;
     font-size: 10px;
     min-height: 40px;
-    
+
     height: fit-content;
     display: flex;
     flex-direction: column;
@@ -682,7 +681,7 @@ p.chap-count {
 
     .content {
       height: fit-content;
-      
+
       overflow: hidden;
       display: grid;
       grid-template-columns: repeat(3, 25fr);
@@ -758,5 +757,32 @@ p.chap-count {
   to {
     opacity: 1;
     bottom: 23px;
+  }
+}
+
+/* Tablet (≥768px) → 2 columns */
+@media (min-width: 768px) {
+  .library-page .container {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* PC/Desktop (≥1200px) → 3 or 4 columns depending on design */
+@media (min-width: 1200px) {
+  .library-page .container {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+/* Tablet (≥768px): 2 columns */
+@media (min-width: 768px) {
+  .discover-page .container {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+/* Desktop (≥1200px): 3 columns */
+@media (min-width: 1200px) {
+  .discover-page .container {
+    grid-template-columns: repeat(7, 1fr);
   }
 }
