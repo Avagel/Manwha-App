@@ -1,4 +1,4 @@
-// redisClient.js
+
 const { createClient } = require("redis");
 
 let redisClient = null;
@@ -71,42 +71,5 @@ const redisClientPromise = initializeRedis().catch((err) => {
 });
 
 // Safe Redis functions that work even if Redis is unavailable
-redisClient = {
-  async get(key) {
-    if (!isConnected || !redisClient) {
-      return null;
-    }
-    try {
-      return await redisClient.get(key);
-    } catch (error) {
-      console.log("❌ Redis get error:", error.message);
-      return null;
-    }
-  },
-
-  async set(key, value) {
-    if (!isConnected || !redisClient) {
-      return;
-    }
-    try {
-      await redisClient.set(key, value);
-    } catch (error) {
-      console.log("❌ Redis set error:", error.message);
-    }
-  },
-
-  async del(key) {
-    if (!isConnected || !redisClient) {
-      return;
-    }
-    try {
-      await redisClient.del(key);
-    } catch (error) {
-      console.log("❌ Redis del error:", error.message);
-    }
-  },
-
-  isConnected: () => isConnected,
-};
 
 module.exports = { redisClient };
