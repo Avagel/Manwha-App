@@ -50,7 +50,8 @@ function App() {
       setHistoryData((prev) => {
         return [...prev, data];
       });
-      
+
+      console.log("History Data..." + historyData);
     } catch (error) {
       // setError(error);
       console.error(error);

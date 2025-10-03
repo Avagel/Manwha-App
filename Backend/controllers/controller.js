@@ -188,7 +188,7 @@ exports.getLatest = async (req, response) => {
 exports.getPopular = async (req, response) => {
   // search the url and get the html
   const cached = await redisClient.get("popular");
-  if (cached) {
+  if (cached && JSON.parse(cached).length > 0) {
     return response.json(JSON.parse(cached));
   }
   try {
@@ -206,7 +206,7 @@ exports.getPopular = async (req, response) => {
       // console.log("Title: ", title);
       mangaList.push({ img, title, link });
     });
-    
+
     await redisClient.setEx("popular", 3600, JSON.stringify(mangaList));
 
     response.json(mangaList);
@@ -221,7 +221,10 @@ exports.getPopular = async (req, response) => {
 exports.getFilter = async (req, response) => {
   const { genre, status, type, order } = req.body;
 
-  const cached = await redisClient.get("filter");
+  if (cached && JSON.parse(cached).length > 0) {
+    return response.json(JSON.parse(cached));
+  }
+
   // if (cached && JSON.parse(cached).length > 0) {
   //   console.log("Cached",JSON.parse(cached))
   //   return response.json(JSON.parse(cached));
@@ -313,8 +316,7 @@ exports.getManwhaDetails = async (req, response) => {
   const { link } = req.body;
   //get the the chapter count and rating
   const cached = await redisClient.get(link);
-  if (cached) {
-    console.log("Serving from Redis cache");
+  if (cached && JSON.parse(cached).length > 0) {
     return response.json(JSON.parse(cached));
   }
 
@@ -467,6 +469,7 @@ exports.addToLibrary = async (req, res) => {
   }
 };
 exports.addToHistory = async (req, res) => {
+  console.log("adding to history: " + UUID)
   const { UUID, data } = req.body;
   let result;
 
@@ -478,22 +481,21 @@ exports.addToHistory = async (req, res) => {
   }
 
   try {
-    const collection = getCollection("history");
     // First check if the link already exists
-    const existing = await collection.findOne({
+    const existing = await getCollection("history").findOne({
       UUID,
       "history.manhwaName": data.manhwaName,
     });
 
     if (existing) {
       // Update that entry inside the array
-      result = await collection.updateOne(
+      result = await getCollection("history").updateOne(
         { UUID, "history.manhwaName": data.manhwaName },
         { $set: { "history.$": data } }
       );
     } else {
       // Push a new entry into the array
-      result = await collection.updateOne(
+      result = await getCollection("history").updateOne(
         { UUID },
         { $push: { history: data } },
         { upsert: true } // creates doc if UUID doesn't exist
@@ -537,7 +539,7 @@ exports.fetchLibrary = async (req, res) => {
 };
 exports.fetchHistory = async (req, res) => {
   const { UUID } = req.body;
-  console.log("Fetching history...",UUID);
+  console.log("Fetching history...", UUID);
 
   if (!db) {
     const isConnected = await connectDB();
@@ -564,7 +566,7 @@ exports.fetchHistory = async (req, res) => {
 
 exports.removeFromLibrary = async (req, res) => {
   const { UUID, link } = req.body;
-  console.log("removing from library... " + UUID)
+  console.log("removing from library... " + UUID);
 
   if (!db) {
     const isConnected = await connectDB();
@@ -592,7 +594,7 @@ exports.removeFromLibrary = async (req, res) => {
 };
 exports.removeFromHistory = async (req, res) => {
   const { UUID, link } = req.body;
-  console.log("removing from library...",link,UUID)
+  console.log("removing from library...", link, UUID);
 
   if (!db) {
     const isConnected = await connectDB();
@@ -603,7 +605,6 @@ exports.removeFromHistory = async (req, res) => {
 
   try {
     const check = await getCollection("history").findOne({ UUID });
-    
 
     const result = await getCollection("history").updateOne(
       { UUID: UUID }, // user's library
