@@ -5,10 +5,9 @@ const { MongoClient } = require("mongodb");
 const { redisClientPromise } = require("../redisClient");
 require("dotenv").config();
 const { connectDB, getCollection, db, dropAllIndexes } = require("../mongo");
-
+let redisClient;
 // let db;
 connectDB();
-const redisClient = await redisClientPromise;
 
 const scrapingClient = axios.create({
   timeout: 20000,
@@ -152,6 +151,8 @@ async function scrapePage(url, selector) {
 }
 
 exports.getLatest = async (req, response) => {
+  if (!redisClient) redisClient = await redisClientPromise;
+
   const cached = await redisClient.get("latest");
   if (cached && JSON.parse(cached).length > 0) {
     return response.json(JSON.parse(cached));
@@ -188,6 +189,7 @@ exports.getLatest = async (req, response) => {
 
 exports.getPopular = async (req, response) => {
   // search the url and get the html
+  if (!redisClient) redisClient = await redisClientPromise;
   const cached = await redisClient.get("popular");
   if (cached && JSON.parse(cached).length > 0) {
     return response.json(JSON.parse(cached));
@@ -225,11 +227,12 @@ exports.getFilter = async (req, response) => {
   if (cached && JSON.parse(cached).length > 0) {
     return response.json(JSON.parse(cached));
   }
+  if (!redisClient) redisClient = await redisClientPromise;
 
-  // if (cached && JSON.parse(cached).length > 0) {
-  //   console.log("Cached",JSON.parse(cached))
-  //   return response.json(JSON.parse(cached));
-  // }
+  if (cached && JSON.parse(cached).length > 0) {
+    console.log("Cached", JSON.parse(cached));
+    return response.json(JSON.parse(cached));
+  }
   // search the url and get the html
   const mangaList = [];
   let pg = 1;
@@ -274,6 +277,7 @@ exports.getFilter = async (req, response) => {
 exports.getSearch = async (req, response) => {
   const { search } = req.body;
   console.log("searching", search);
+  if (!redisClient) redisClient = await redisClientPromise;
   const cached = await redisClient.get(search);
   if (cached && JSON.parse(cached).length > 0) {
     console.log("Cached", JSON.parse(cached));
@@ -316,6 +320,7 @@ exports.getSearch = async (req, response) => {
 exports.getManwhaDetails = async (req, response) => {
   const { link } = req.body;
   //get the the chapter count and rating
+  if (!redisClient) redisClient = await redisClientPromise;
   const cached = await redisClient.get(link);
   if (cached && JSON.parse(cached).length > 0) {
     return response.json(JSON.parse(cached));
@@ -379,6 +384,7 @@ exports.getManwhaDetails = async (req, response) => {
 exports.getManhwaPages = async (req, response) => {
   const { link } = req.body;
   console.log("fetching", link);
+  if (!redisClient) redisClient = await redisClientPromise;
   const cached = await redisClient.get(link);
   if (cached && cached.length > 0) {
     return response.json(JSON.parse(cached));
@@ -470,7 +476,7 @@ exports.addToLibrary = async (req, res) => {
   }
 };
 exports.addToHistory = async (req, res) => {
-  console.log("adding to history: " + UUID)
+  console.log("adding to history: " + UUID);
   const { UUID, data } = req.body;
   let result;
 
