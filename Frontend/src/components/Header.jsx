@@ -19,7 +19,7 @@ export const Header = ({ setSearch, val, handleSearch }) => {
   const path = useLocation().pathname;
 
   const handleSearchClick = () => {
-    console.log("Search icon clicked");
+    
 
     if (isSearchActive) setSearch("");
     setIsSearchActive(!isSearchActive);

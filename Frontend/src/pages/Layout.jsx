@@ -17,16 +17,15 @@ export const Layout = ({ libraryData, setLibraryData }) => {
   const { pathname } = location;
   const [error, setError] = useState(null);
   const isReading = location.pathname.includes("/series");
-  console.log(isReading);
+  
   const API_URL = import.meta.env.VITE_API_URL;
 
-  console.log(location);
 
   const checkIfExist = (link) => {
     if (!link) return false;
 
     const check = libraryData?.filter((item) => item.link == link) || [];
-    console.log("Check", check);
+    
 
     if (check.length > 0) return true;
 
@@ -35,7 +34,7 @@ export const Layout = ({ libraryData, setLibraryData }) => {
   const addToLibrary = async () => {
     const { data } = location.state;
     const uuid = localStorage.getItem("manhwaUUID");
-    console.log("Data to Add:", data);
+    
     if (checkIfExist(data.link)) return;
 
     try {
@@ -44,7 +43,7 @@ export const Layout = ({ libraryData, setLibraryData }) => {
         data,
       });
       const result = res.data;
-      console.log("Added", result);
+      
 
       setLibraryData((prev) => {
         return [...prev, data];
@@ -58,7 +57,7 @@ export const Layout = ({ libraryData, setLibraryData }) => {
     const { data } = location.state;
     const { link } = data;
 
-    console.log("Data to remove:", data);
+    
     if (!checkIfExist(data.link)) return;
     try {
       const res = await axios.post(`${API_URL}/library/remove`, {
@@ -66,7 +65,6 @@ export const Layout = ({ libraryData, setLibraryData }) => {
         link,
       });
       const result = res.data;
-      console.log("Added", result);
 
       setLibraryData((prev) => {
         return prev.filter((manwha) => manwha.link !== data.link);

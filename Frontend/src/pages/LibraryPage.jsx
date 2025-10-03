@@ -35,7 +35,6 @@ export const LibraryPage = ({ libraryData, setLibraryData, setManhwaData }) => {
       const res = await axios.post(`${API_URL}/user/add`, {
         UUID: uuid,
       });
-      console.log(res.data);
       const result = res.data;
       console.log("successful: ", result);
       localStorage.setItem("manhwaUUID", uuid);
@@ -46,7 +45,6 @@ export const LibraryPage = ({ libraryData, setLibraryData, setManhwaData }) => {
   };
   const fetchLibrary = async () => {
     const uuid = localStorage.getItem("manhwaUUID");
-    console.log(uuid);
 
     // example: "550e8400-e29b-41d4-a716-446655440000"
 
@@ -73,7 +71,6 @@ export const LibraryPage = ({ libraryData, setLibraryData, setManhwaData }) => {
     }
   };
 
-  console.log("Library Data:", libraryData);
   return (
     <div className="library-page page">
       <Header setSearch={setSearch} val={"Library"} />

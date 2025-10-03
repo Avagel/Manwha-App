@@ -17,7 +17,6 @@ import { NavLink } from "react-router";
 export const ReadingPage = ({ addToHistory }) => {
   const location = useLocation();
   const { data } = location.state;
-  console.log(data.manhwaName);
   const allChapters = JSON.parse(
     localStorage.getItem("allChapters" + data.manhwaName)
   );
@@ -43,7 +42,7 @@ export const ReadingPage = ({ addToHistory }) => {
   };
 
   useEffect(() => {
-    console.log("fetchimg images " + _link);
+    console.log("fetchimg images...");
     data.date = new Date().toLocaleTimeString();
     data.title = "Chapter " + chapterId;
 
@@ -62,7 +61,6 @@ export const ReadingPage = ({ addToHistory }) => {
   }, [_link]);
 
   const checkIfExist = (link) => {
-    console.log("link to check: ", link);
     const manhwa = allChapters.filter((manhwa) => manhwa.link == link);
 
     if (manhwa.length > 0) return true;

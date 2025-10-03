@@ -12,7 +12,7 @@ export const HistoryPage = ({ historyData, setHistoryData }) => {
   const dummy = [5, 5, 5, 5, 5, 5];
   const [search, setSearch] = useState("");
   const [loading, setLoading] = useState(true);
-  console.log(historyData);
+  
   const API_URL = import.meta.env.VITE_API_URL;
 
   useEffect(() => {
@@ -27,7 +27,7 @@ export const HistoryPage = ({ historyData, setHistoryData }) => {
   const fetchHistory = async () => {
     const uuid = localStorage.getItem("manhwaUUID");
     console.log("fetching history...");
-    
+
     try {
       const res = await axios.post(`${API_URL}/history/fetch`, {
         UUID: uuid,
@@ -58,7 +58,7 @@ export const HistoryPage = ({ historyData, setHistoryData }) => {
         link,
       });
       const result = res.data;
-      console.log("Added", result);
+      
 
       setHistoryData((prev) => {
         return prev.filter((history) => history.link !== link);

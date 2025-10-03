@@ -161,7 +161,7 @@ exports.getLatest = async (req, response) => {
 
   // search the url and get the html
   try {
-    const res = await scrapingClient.get("https://asuracomic.net/");
+    const res = await scrapingClient.get(`${API_URL}/`);
     const html = res.data;
     const $ = cheerio.load(html);
     const mangaList = [];
@@ -198,7 +198,7 @@ exports.getPopular = async (req, response) => {
     return response.json(JSON.parse(cached));
   }
   try {
-    const res = await scrapingClient.get("https://asuracomic.net/");
+    const res = await scrapingClient.get(`${API_URL}/`);
     const html = res.data;
     const $ = cheerio.load(html);
     const mangaList = [];
@@ -242,7 +242,7 @@ exports.getFilter = async (req, response) => {
   while (true) {
     try {
       const res = await scrapingClient.get(
-        `https://asuracomic.net/series?page=${pg}&genres=${genre}&status=${status}&types=${type}&order=${order}`
+        `${API_URL}/series?page=${pg}&genres=${genre}&status=${status}&types=${type}&order=${order}`
       );
       console.log("viewing page " + pg);
       const html = res.data;
@@ -294,7 +294,7 @@ exports.getSearch = async (req, response) => {
 
   try {
     const res = await scrapingClient.get(
-      `https://asuracomic.net/series?page=1&name=${search}`
+      `${API_URL}/series?page=1&name=${search}`
     );
     const html = res.data;
     const $ = cheerio.load(html);
@@ -335,7 +335,7 @@ exports.getManwhaDetails = async (req, response) => {
   }
 
   try {
-    const res = await scrapingClient.get("https://asuracomic.net/" + link);
+    const res = await scrapingClient.get(`${API_URL}/` + link);
     const html = res.data;
     const $ = cheerio.load(html);
 
@@ -401,7 +401,7 @@ exports.getManhwaPages = async (req, response) => {
   }
 
   try {
-    const url = "https://asuracomic.net/series/" + link;
+    const url = `${API_URL}/series/` + link;
     const selector = ".w-full.mx-auto.center";
     const images = [];
     const res = await scrapePage(url, selector);

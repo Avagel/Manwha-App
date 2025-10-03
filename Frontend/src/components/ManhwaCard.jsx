@@ -1,7 +1,7 @@
 import { useNavigate } from "react-router";
 
 export const ManwhaCard = ({ data }) => {
-  console.log(data);
+  
   const { img, title } = data;
   const navigate = useNavigate();
   const handleClick = () => {

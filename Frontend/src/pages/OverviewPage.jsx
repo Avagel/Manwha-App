@@ -52,7 +52,6 @@ export const OverviewPage = ({ setHistoryData }) => {
     }
   };
   let { title, img, genres, chapters, summary, link, rating } = manhwaData;
-  console.log(link);
   if (chapters)
     localStorage.setItem("allChapters" + title, JSON.stringify(chapters));
   const handleSort = () => {
