@@ -476,8 +476,8 @@ exports.addToLibrary = async (req, res) => {
   }
 };
 exports.addToHistory = async (req, res) => {
-  console.log("adding to history: " + UUID);
   const { UUID, data } = req.body;
+  console.log("adding to history: " + UUID);
   let result;
 
   if (!db) {
