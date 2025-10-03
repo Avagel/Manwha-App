@@ -97,7 +97,7 @@ export const LibraryPage = ({ libraryData, setLibraryData, setManhwaData }) => {
             <img src={sadtear} alt="" />
             <p>
               No Manhwa in Library <br/> go to
-              {<NavLink to="discover"> Discover</NavLink>}
+              {<NavLink to="/"> Discover</NavLink>}
             </p>
           </div>
         )

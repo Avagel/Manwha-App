@@ -109,7 +109,7 @@ function App() {
               element={<OverviewPage setHistoryData={setHistoryData} />}
             />
             <Route
-              path="discover"
+              path="/"
               element={
                 <DiscoverPage
                   latest={latest}

@@ -23,8 +23,7 @@ export const Layout = ({ libraryData, setLibraryData }) => {
   console.log(location);
 
   const checkIfExist = (link) => {
-    if(!link)
-      return false
+    if (!link) return false;
 
     const check = libraryData?.filter((item) => item.link == link) || [];
     console.log("Check", check);
@@ -36,7 +35,7 @@ export const Layout = ({ libraryData, setLibraryData }) => {
   const addToLibrary = async () => {
     const { data } = location.state;
     const uuid = localStorage.getItem("manhwaUUID");
-    console.log("Data to Add:", data);  
+    console.log("Data to Add:", data);
     if (checkIfExist(data.link)) return;
 
     try {
@@ -81,14 +80,6 @@ export const Layout = ({ libraryData, setLibraryData }) => {
     <>
       <Outlet />
       <nav className={isReading ? "hidden" : ""}>
-        <NavLink to="/">
-          <FontAwesomeIcon icon={faBook} />
-          Library
-        </NavLink>
-        <NavLink to="history">
-          <FontAwesomeIcon icon={faHistory} />
-          History
-        </NavLink>
         {pathname.includes("/overview") && location.state ? (
           <div>
             {checkIfExist(location.state.data.link) ? (
@@ -108,11 +99,20 @@ export const Layout = ({ libraryData, setLibraryData }) => {
             )}
           </div>
         ) : (
-          <NavLink to="discover">
+          <NavLink to="/">
             <FontAwesomeIcon icon={faCompass} />
             Discover
           </NavLink>
         )}
+        <NavLink to="library">
+          <FontAwesomeIcon icon={faBook} />
+          Library
+        </NavLink>
+
+        <NavLink to="history">
+          <FontAwesomeIcon icon={faHistory} />
+          History
+        </NavLink>
       </nav>
     </>
   );
