@@ -84,17 +84,6 @@ redisClient = {
     }
   },
 
-  async setEx(key, seconds, value) {
-    if (!isConnected || !redisClient) {
-      return;
-    }
-    try {
-      await redisClient.setEx(key, seconds, value);
-    } catch (error) {
-      console.log("❌ Redis setEx error:", error.message);
-    }
-  },
-
   async set(key, value) {
     if (!isConnected || !redisClient) {
       return;
