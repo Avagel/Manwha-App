@@ -367,6 +367,7 @@ nav {
 
 .overview-page .container {
   padding-top: 60px;
+  
 
   .desc {
     display: flex;
@@ -623,13 +624,14 @@ p.chap-count {
 }
 
 .discover-page .filter {
+  box-sizing: border-box;
+  position: absolute;
   display: grid;
   grid-template-columns: 1fr;
   grid-auto-rows: auto;
-  width: 90%;
-  position: fixed;
+  width: 95%;
   z-index: 2;
-  max-height: 70vh;
+  max-height: 60vh;
   /* max-height: 250px; */
   overflow: auto;
   padding: 10px;
@@ -637,6 +639,8 @@ p.chap-count {
   background-color: #141212b6;
   backdrop-filter: blur(50px);
   gap: 10px;
+  left: 50%;
+  transform: translateX(-50%);
 
   .search {
     background-color: #32576e;
@@ -659,7 +663,7 @@ p.chap-count {
     border: 0.5px solid #cbc9cf;
     svg {
       position: absolute;
-      right: 10px;
+      right: 15px;
     }
 
     .content.hidden {
@@ -685,6 +689,7 @@ p.chap-count {
       flex-wrap: wrap;
       padding: 0 10px;
       transition: 0.3s all ease;
+      padding-bottom: 5px;
     }
     label {
       display: flex;
