@@ -9,13 +9,14 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useRef, useState } from "react";
-import { useNavigate } from "react-router";
+import { useNavigate,useLocation } from "react-router";
 
 export const Header = ({ setSearch, val, handleSearch }) => {
   const [isSearchActive, setIsSearchActive] = useState(false);
   const [isUserSeen, setIsUserSeen] = useState(false);
   const inputRef = useRef(null);
   const navigate = useNavigate();
+  const path = useLocation().pathname;
 
   const handleSearchClick = () => {
     console.log("Search icon clicked");
@@ -60,7 +61,7 @@ export const Header = ({ setSearch, val, handleSearch }) => {
           <input
             ref={inputRef}
             type="text"
-            placeholder="Search for Manwha"
+            placeholder={path.includes("/overview")? "Search for Chapter": "Search for Manwha"}
             onChange={handleChange}
             autoFocus
           />

@@ -8,7 +8,10 @@ import { LoadingCardOver } from "../components/LoadingCardOver";
 import sadtear from "../assets/sadtear.svg";
 import axios from "axios";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faArrowUpShortWide, faArrowUpWideShort } from "@fortawesome/free-solid-svg-icons";
+import {
+  faArrowUpShortWide,
+  faArrowUpWideShort,
+} from "@fortawesome/free-solid-svg-icons";
 
 export const OverviewPage = ({ setHistoryData }) => {
   const location = useLocation();
@@ -20,6 +23,7 @@ export const OverviewPage = ({ setHistoryData }) => {
   // const [refreshKey, setRefreshKey] = useState(0);
   const [error, setError] = useState(null);
   const [isReverse, setIsReverse] = useState(false);
+  const [search, setSearch] = useState("");
 
   useEffect(() => {
     if (manhwaData.summary) return;
@@ -52,11 +56,11 @@ export const OverviewPage = ({ setHistoryData }) => {
   const handleSort = () => {
     chapters = chapters.reverse();
     setIsReverse((prev) => !prev);
-  }
+  };
 
   return (
     <>
-      <Header val={"back"} />
+      <Header val={"back"} setSearch={setSearch} />
       <div className="overview-page page">
         {error ? (
           <div className="none">
@@ -84,13 +88,18 @@ export const OverviewPage = ({ setHistoryData }) => {
               })}
             </div>
             <div className="sort">
-            <p className="chap-count">{chapters.length} Chapters</p>
-            <FontAwesomeIcon icon={isReverse ?faArrowUpWideShort:faArrowUpShortWide} onClick={handleSort}/>
+              <p className="chap-count">{chapters.length} Chapters</p>
+              <FontAwesomeIcon
+                icon={isReverse ? faArrowUpWideShort : faArrowUpShortWide}
+                onClick={handleSort}
+              />
             </div>
             <div className="chapters">
               {chapters.map((data, index) => {
+                
                 data.img = img;
                 data.manhwaName = title;
+                if (data.title.toLocaleLowerCase().indexOf(search) === -1) return;
                 return (
                   <ChapterCard
                     key={index}
